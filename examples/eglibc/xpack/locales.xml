@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="libc-dev-bin">
+    <summary>Internationalization support files for the GNU C library</summary>
+    <description>
+        <p>
+            Machine-readable data files, shared objects and programs used by the
+        C library for localization (l10n) and internationalization (i18n) support.
+        </p>
+    </description>
+
+    <contents>
+        <file src="/usr/share/i18n/charmaps/*"/>
+        <file src="/usr/share/i18n/locales/*"/>
+        <dir src="/usr/share/locale"/>
+        <dir src="/usr/lib/locale"/>
+    </contents>
+</package>

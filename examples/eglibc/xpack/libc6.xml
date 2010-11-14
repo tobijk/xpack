@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="libc6">
+    <summary>Embedded GNU C Library: Shared libraries</summary>
+    <description>
+        <p>
+            Contains the standard libraries that are used by nearly all programs on
+        the system. This package includes shared versions of the standard C library
+        and the standard math library, as well as many others.
+        </p>
+    </description>
+    <requires>
+        <package name="libc-bin" version="=="/>
+    </requires>
+
+    <contents>
+        <dir src="/etc/ld.so.conf.d"/>
+        <file src="/etc/gai.conf"/>
+        <file src="/lib/*.so*"/>
+        <file src="/usr/lib/gconv/*"/>
+    </contents>
+</package>

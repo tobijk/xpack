@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="libc-bin">
+    <summary>Embedded GNU C Library: Binaries</summary>
+    <description>
+        <p>
+             This package contains utility programs related to the GNU C Library.
+        </p>
+        <ul>
+            <li>catchsegv: catch segmentation faults in programs</li>
+            <li>getconf: query system configuration variables</li>
+            <li>getent: get entries from administrative databases</li>
+            <li>iconv, iconvconfig: convert between character encodings</li>
+            <li>ldd, ldconfig: print/configure shared library dependencies</li>
+            <li>locale, localedef: show/generate locale definitions</li>
+            <li>rpcinfo: report RPC information</li>
+            <li>tzselect, zdump, zic: select/dump/compile time zones</li>
+        </ul>
+    </description>
+
+    <contents>
+        <file src="/sbin/ldconfig"/>
+        <file src="/usr/bin/catchsegv"/>
+        <file src="/usr/bin/getconf"/>
+        <file src="/usr/bin/getent"/>
+        <file src="/usr/bin/iconv"/>
+        <file src="/usr/bin/ldd"/>
+        <file src="/usr/bin/localedef"/>
+        <file src="/usr/bin/locale"/>
+        <file src="/usr/bin/tzselect"/>
+        <file src="/usr/lib/pt_chown"/>
+        <file src="/usr/sbin/iconvconfig"/>
+        <file src="/usr/sbin/rpcinfo"/>
+        <file src="/usr/sbin/zdump"/>
+        <file src="/usr/sbin/zic"/>
+    </contents>
+</package>

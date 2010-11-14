@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="libc6-dev">
+    <summary>Embedded GNU C Library: Development Libraries and Header Files</summary>
+    <description>
+        <p>
+            Contains the symlinks, headers, and object files needed to compile
+        and link programs which use the standard C library.
+        </p>
+    </description>
+    <requires>
+        <package name="libc6" version="=="/>
+        <package name="libc6-dev-bin" version="=="/>
+    </requires>
+
+    <contents>
+        <file src="/usr/lib/libanl.a"/>
+        <file src="/usr/lib/libBrokenLocale.a"/>
+        <file src="/usr/lib/libbsd-compat.a"/>
+        <file src="/usr/lib/libc.a"/>
+        <file src="/usr/lib/libc_nonshared.a"/>
+        <file src="/usr/lib/libcrypt.a"/>
+        <file src="/usr/lib/libdl.a"/>
+        <file src="/usr/lib/libg.a"/>
+        <file src="/usr/lib/libieee.a"/>
+        <file src="/usr/lib/libm.a"/>
+        <file src="/usr/lib/libmcheck.a"/>
+        <file src="/usr/lib/libnsl.a"/>
+        <file src="/usr/lib/libpthread.a"/>
+        <file src="/usr/lib/libpthread_nonshared.a"/>
+        <file src="/usr/lib/libresolv.a"/>
+        <file src="/usr/lib/librpcsvc.a"/>
+        <file src="/usr/lib/librt.a"/>
+        <file src="/usr/lib/libutil.a"/>
+        <file src="/usr/lib/*.o"/>
+        <file src="/usr/lib/*.so"/>
+        <file src="/usr/include/*"/>
+    </contents>
+</package>

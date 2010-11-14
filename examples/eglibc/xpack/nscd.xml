@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="nscd">
+    <summary>Embedded GNU C Library: Name Service Cache Daemon</summary>
+    <description>
+        <p>
+            A daemon which handles passwd, group and host lookups for running
+        programs and caches the results for the next query. You should install
+        this package only if you use slow Services like LDAP, NIS or NIS+.
+        </p>
+    </description>
+
+    <contents>
+        <file src="/usr/sbin/nscd"/>
+        <file src="/etc/nscd.conf"/>
+    </contents>
+</package>

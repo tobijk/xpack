@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="libc-dev-bin">
+    <summary>Embedded GNU C Library: Development Binaries</summary>
+    <description>
+        <p>
+            This package contains utility programs related to the GNU C Library
+        development package.
+        </p>
+    </description>
+
+    <contents>
+        <file src="/usr/bin/gencat"/>
+        <file src="/usr/bin/mtrace"/>
+        <file src="/usr/bin/rpcgen"/>
+        <file src="/usr/bin/sprof"/>
+    </contents>
+</package>

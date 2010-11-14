@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE control [
+<!ENTITY rules        SYSTEM "rules.xml">
+<!ENTITY libc-bin     SYSTEM "libc-bin.xml">
+<!ENTITY libc-dev-bin SYSTEM "libc-dev-bin.xml">
+<!ENTITY nscd         SYSTEM "nscd.xml">
+<!ENTITY libc6        SYSTEM "libc6.xml">
+<!ENTITY libc6-dev    SYSTEM "libc6-dev.xml">
+<!ENTITY locales      SYSTEM "locales.xml">
+<!ENTITY changelog    SYSTEM "changelog.xml">
+]>
+<control xmlns:xi="http://www.w3.org/2001/XInclude">
+    <info>
+        <maintainer>
+            <name>Tobias Koch</name>
+            <email>tobias.koch@gmail.com</email>
+        </maintainer>
+    </info>
+
+    <defines>
+        <def name="XPACK_SOURCE_DIR" value="eglibc-src"/>
+        <def name="XPACK_BUILD_DIR" value="tmp-build"/>
+        <def name="XPACK_INSTALL_DIR" value="tmp-install"/>
+    </defines>
+
+    <source name="eglibc">
+        <summary>The embedded variant of the GNU C library</summary>
+        <description>
+            <p>
+                Embedded GLIBC (EGLIBC) is a variant of the GNU C Library (GLIBC) 
+            that is designed to work well on embedded systems. EGLIBC strives to be
+            source and binary compatible with GLIBC. EGLIBC's goals include reduced
+            footprint, configurable components, better support for cross-compilation
+            and cross-testing.
+            </p>
+        </description>
+
+        <requires>
+            <package name="gcc" version="&gt;=4.3"/>
+        </requires>
+
+        <sources>
+            <file src="eglibc-2.12.1.tar.gz"/>
+        </sources>
+
+        <patches>
+            <patchset arch="any">
+                <file src="patches/eglibc-pre-config.diff"/>
+            </patchset>
+        </patches>
+ 
+        <!-- build rules -->
+        &rules;
+   </source>
+
+    <!-- package rules -->
+    &libc-bin;
+    &libc-dev-bin;
+    &nscd;
+    &libc6;
+    &libc6-dev;
+    &locales;
+
+    <!-- changelog -->
+    &changelog;
+
+</control>
