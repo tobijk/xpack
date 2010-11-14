@@ -1,0 +1,129 @@
+#!/usr/bin/env ruby
+# -*- encoding: utf-8 -*-
+#
+# This file is part of the XPack Package Manager
+# Copyright (C) 2010, Tobias Koch <tobias.koch@gmail.com>
+#
+# XPack is licensed under the GNU General Public License, version 2. A copy of
+# the license text can be found in the file LICENSE included in the source distribution.
+#
+
+# make xpack relocatable
+INSTALL_DIR = File.expand_path(File.dirname(File.symlink?(__FILE__) ?
+  File.readlink(__FILE__) : __FILE__) + '/..')
+$LOAD_PATH.unshift INSTALL_DIR + '/lib'
+
+require 'getoptlong'
+require 'pkgcontrol'
+
+XPACK_VERSION = "0.1.0"
+
+XPACK_ERR_INVOCATION = 1
+XPACK_ERR_RUNTIME    = 2
+
+def print_usage()
+  puts "XPack Package Manager, version #{XPACK_VERSION}                               "
+  puts "Copyright (C) 2010, Tobias Koch <tobias.koch@gmail.com>                       "
+  puts "                                                                              "
+  puts "Usage: xpack [OPTIONS] <specfile>                                             "
+  puts "                                                                              "
+  puts "Options:                                                                      "
+  puts "                                                                              "
+  puts " -h --help          print this help message                                   "
+  puts "                                                                              "
+  puts " --list-deps        list all build dependencies                               "
+  puts " --ignore-deps      ignore missing build dependencies                         "
+  puts "                                                                              "
+  puts " -f --format=<fmt>  package format to build, currently supported formats are: "
+  puts "                    'deb' - Debian package format (default)                   "
+  puts "                    'rpm' - RPM package format                                "
+  puts " -o --outdir=<dir>  place resulting binary packages in this directory         "
+  puts "                                                                              "
+  puts " -p --prepare-only  run the prepare target defined in the rules file          "
+  puts " -b --build-only    run the build target defined in the rules file            "
+  puts " -i --install-only  run the install target defined in the rules file          "
+  puts " -r --repackage     run the install target and generate binary packages       "
+  puts "                                                                              "
+end
+
+def parse_cmd_line()
+
+  # define default configuration
+  config = {
+    :action => :default,
+    :outdir => nil,
+    :format => :deb,
+    :ignore_deps => false
+  }
+
+  opts = GetoptLong.new(
+    [ '--help', '-h',         GetoptLong::NO_ARGUMENT ],
+    [ '--list-deps',          GetoptLong::NO_ARGUMENT ],
+    [ '--ignore-deps',        GetoptLong::NO_ARGUMENT ],
+    [ '--format', '-f',       GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--outdir', '-o',       GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--prepare-only', '-p', GetoptLong::NO_ARGUMENT ],
+    [ '--build-only', '-b',   GetoptLong::NO_ARGUMENT ],
+    [ '--install-only', '-i', GetoptLong::NO_ARGUMENT ],
+    [ '--repackage', '-r',    GetoptLong::NO_ARGUMENT ]
+  )
+
+  opts.quiet = true
+  begin
+    opts.each do |opt, arg|
+      case opt
+        when '--help'
+          print_usage
+          exit 0
+        when '--list-deps'
+          config[:action] = :list_deps
+        when '--ignore-deps'
+          config[:ignore_deps] = true
+        when '--format'
+          if not [:deb, :rpm].include? arg.intern
+            raise GetoptLong::Error, "invalid binary package format '#{arg}'"
+          end
+          config[:format] = arg.intern
+        when '--outdir'
+          config[:outdir] = arg
+        when '--prepare-only'
+          config[:action] = :prepare
+        when '--build-only'
+          config[:action] = :build
+        when '--repackage'
+          config[:action] = :package
+      end
+    end
+  rescue GetoptLong::Error => e
+    $stderr.write "xpack: #{e.message}\n"
+    exit XPACK_ERR_INVOCATION
+  end
+
+  return config
+end
+
+begin #main()
+
+  config = parse_cmd_line
+
+  if ARGV.length != 1
+    $stderr.write "xpack: missing spec file argument\n"
+    exit XPACK_ERR_INVOCATION
+  end
+
+  xml_spec_file_name = ARGV[0]
+
+  unless File.file? xml_spec_file_name
+    $stderr.write "xpack: no such file '#{xml_spec_file_name}'\n"
+    exit XPACK_ERR_INVOCATION
+  end
+
+  begin
+    pkg_ctrl = PackageControl.new(xml_spec_file_name, config)
+    pkg_ctrl.send(config[:action])
+  rescue Exception => e
+    $stderr.write "xpack: #{e.message}\n"
+    exit XPACK_ERR_RUNTIME
+  end
+
+end
