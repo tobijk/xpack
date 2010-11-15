@@ -37,4 +37,13 @@
     ]]>
     </install>
 
+
+    <clean>
+    <![CDATA[
+
+    rm -fr eglibc-src tmp-install tmp-build
+
+    ]]>
+    </clean>
+
 </rules>
