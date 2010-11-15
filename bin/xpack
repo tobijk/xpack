@@ -43,6 +43,7 @@ def print_usage()
   puts " -b --build-only    run the build target defined in the rules file            "
   puts " -i --install-only  run the install target defined in the rules file          "
   puts " -r --repackage     run the install target and generate binary packages       "
+  puts " -c --clean         run the clean target                                      "
   puts "                                                                              "
 end
 
@@ -65,7 +66,8 @@ def parse_cmd_line()
     [ '--prepare-only', '-p', GetoptLong::NO_ARGUMENT ],
     [ '--build-only', '-b',   GetoptLong::NO_ARGUMENT ],
     [ '--install-only', '-i', GetoptLong::NO_ARGUMENT ],
-    [ '--repackage', '-r',    GetoptLong::NO_ARGUMENT ]
+    [ '--repackage', '-r',    GetoptLong::NO_ARGUMENT ],
+    [ '--clean', '-c',        GetoptLong::NO_ARGUMENT ]
   )
 
   opts.quiet = true
@@ -90,8 +92,12 @@ def parse_cmd_line()
           config[:action] = :prepare
         when '--build-only'
           config[:action] = :build
+        when '--install-only'
+          config[:action] = :install
         when '--repackage'
           config[:action] = :package
+        when '--clean'
+          config[:action] = :clean
       end
     end
   rescue GetoptLong::Error => e

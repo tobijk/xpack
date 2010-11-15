@@ -87,6 +87,10 @@ class PackageControl
     puts "package"
   end
 
+  def clean()
+    @src_pkg.clean @defines
+  end
+
   def default()
     prepare
     build

@@ -101,7 +101,7 @@ class SourcePackage
     puts "patch"
   end
 
-  ['prepare', 'build', 'install'].each do |name|
+  ['prepare', 'build', 'install', 'clean'].each do |name|
     class_eval %{
       def #{name}(env = {})
         IO.popen("/bin/sh -s", "w") do |p|
