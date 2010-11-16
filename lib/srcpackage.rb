@@ -10,6 +10,7 @@
 require 'rubygems'
 require 'nokogiri'
 require 'libarchive_ruby'
+require 'popen'
 
 class SourcePackage
 
@@ -104,12 +105,15 @@ class SourcePackage
   ['prepare', 'build', 'install', 'clean'].each do |name|
     class_eval %{
       def #{name}(env = {})
-        IO.popen("/bin/sh -s", "w") do |p|
-          env.each_pair {|k,v| p.write("\#{k}=\#{v}\n")}
-          p.write(@rules['#{name}'])
-          p.close
+        exit_code = Popen.popen2("/bin/sh -s") do |stdin, stdeo|
+          env.each_pair {|k,v| stdin.write("\#{k}=\#{v}\n")}
+          stdin.write(@rules['#{name}'])
+          stdin.close
+          stdeo.each_line do |line|
+            puts line
+          end
         end
-        if $? != 0
+        if exit_code != 0
           raise RuntimeError, "could not #{name} \#{@name}"
         end
       end
