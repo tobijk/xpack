@@ -19,7 +19,8 @@ require 'pkgcontrol'
 XPACK_VERSION = "0.1.0"
 
 XPACK_ERR_INVOCATION = 1
-XPACK_ERR_RUNTIME    = 2
+XPACK_ERR_INTERRUPT  = 2
+XPACK_ERR_RUNTIME    = 3
 
 def print_usage()
   puts "XPack Package Manager, version #{XPACK_VERSION}                               "
@@ -127,6 +128,9 @@ begin #main()
   begin
     pkg_ctrl = PackageControl.new(xml_spec_file_name, config)
     pkg_ctrl.send(config[:action])
+  rescue Interrupt => e
+    $stderr.write "xpack: caught interrupt, exiting\n"
+    exit XPACK_ERR_INTERRUPT
   rescue Exception => e
     $stderr.write "xpack: #{e.message}\n"
     exit XPACK_ERR_RUNTIME
