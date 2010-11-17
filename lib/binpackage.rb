@@ -7,13 +7,7 @@
 # the license text can be found in the file LICENSE included in the source distribution.
 #
 
-require 'rpmpackage'
-require 'debpackage'
-
 class BinaryPackage
-
-  include DebianBinaryPackage
-  include RPMBinaryPackage
 
   def initialize(xml_config)
 

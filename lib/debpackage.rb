@@ -7,9 +7,11 @@
 # the license text can be found in the file LICENSE included in the source distribution.
 #
 
-module DebianBinaryPackage
+require 'binpackage'
 
-  def deb_pack(base_dir, output_dir)
+class DebianPackage < BinaryPackage
+
+  def pack(base_dir, output_dir)
 
   end
 

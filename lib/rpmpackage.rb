@@ -7,7 +7,9 @@
 # the license text can be found in the file LICENSE included in the source distribution.
 #
 
-module RPMBinaryPackage
+require 'binpackage'
+
+class RPMPackage < BinaryPackage
 
   def rpm_pack(base_dir, output_dir)
 
