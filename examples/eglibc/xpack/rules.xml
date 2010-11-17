@@ -41,7 +41,7 @@
     <clean>
     <![CDATA[
 
-    rm -fr eglibc-src tmp-install tmp-build
+    rm -fr $XPACK_SOURCE_DIR $XPACK_BUILD_DIR $XPACK_INSTALL_DIR
 
     ]]>
     </clean>
