@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="libc6">
+<package name="libc6" section="libs">
     <summary>Embedded GNU C Library: Shared libraries</summary>
     <description>
         <p>

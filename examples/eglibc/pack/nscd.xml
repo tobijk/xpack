@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="nscd">
+<package name="nscd" section="admin">
     <summary>Embedded GNU C Library: Name Service Cache Daemon</summary>
     <description>
         <p>

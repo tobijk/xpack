@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="libc-dev-bin">
+<package name="locales" section="libs">
     <summary>Internationalization support files for the GNU C library</summary>
     <description>
         <p>

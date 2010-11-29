@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="libc-dev-bin">
+<package name="libc-dev-bin" section="libdevel">
     <summary>Embedded GNU C Library: Development Binaries</summary>
     <description>
         <p>

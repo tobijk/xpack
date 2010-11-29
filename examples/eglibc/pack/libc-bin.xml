@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="libc-bin">
+<package name="libc-bin" section="libs">
     <summary>Embedded GNU C Library: Binaries</summary>
     <description>
         <p>
