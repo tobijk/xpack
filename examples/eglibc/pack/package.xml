@@ -10,12 +10,6 @@
 <!ENTITY changelog    SYSTEM "changelog.xml">
 ]>
 <control xmlns:xi="http://www.w3.org/2001/XInclude">
-    <info>
-        <maintainer>
-            <name>Tobias Koch</name>
-            <email>tobias.koch@gmail.com</email>
-        </maintainer>
-    </info>
 
     <defines>
         <def name="XPACK_SOURCE_DIR" value="eglibc-src"/>
