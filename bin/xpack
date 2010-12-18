@@ -96,7 +96,7 @@ def parse_cmd_line()
         when '--install-only'
           config[:action] = :install
         when '--repackage'
-          config[:action] = :package
+          config[:action] = :repackage
         when '--clean'
           config[:action] = :clean
       end
