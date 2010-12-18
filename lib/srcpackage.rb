@@ -15,10 +15,10 @@ require 'popen'
 class SourcePackage
 
   def initialize(xml_config)
-    case xml_config.class
-      when Nokogiri::XML::Element.class
+    case xml_config
+      when Nokogiri::XML::Element
         source_node = xml_config
-      when String.class
+      when String
         source_node = Nokogiri::XML(xml_config).root
       else
         raise RuntimeError
