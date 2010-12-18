@@ -9,8 +9,8 @@
     </description>
 
     <contents>
-        <file src="/usr/share/i18n/charmaps/*"/>
-        <file src="/usr/share/i18n/locales/*"/>
+        <file src="/usr/share/i18n/charmaps/"/>
+        <file src="/usr/share/i18n/locales/"/>
         <dir src="/usr/share/locale"/>
         <dir src="/usr/lib/locale"/>
     </contents>

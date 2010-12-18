@@ -16,6 +16,6 @@
         <dir src="/etc/ld.so.conf.d"/>
         <file src="/etc/gai.conf"/>
         <file src="/lib/*.so*"/>
-        <file src="/usr/lib/gconv/*"/>
+        <file src="/usr/lib/gconv/"/>
     </contents>
 </package>

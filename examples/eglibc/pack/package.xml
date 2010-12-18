@@ -17,7 +17,7 @@
         <def name="XPACK_INSTALL_DIR" value="tmp-install"/>
     </defines>
 
-    <source name="eglibc">
+    <source name="eglibc" architecture-independent="false">
         <summary>The embedded variant of the GNU C library</summary>
         <description>
             <p>
