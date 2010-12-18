@@ -11,8 +11,16 @@ require 'binpackage'
 
 class RPMPackage < BinaryPackage
 
-  def rpm_pack(base_dir, output_dir)
+  def do_pack
+    raise StandardError "RPM packaging is not implemented."
+  end
 
+  private
+
+  def meta_data
+  end
+
+  def rpm_architecture
   end
 
 end
