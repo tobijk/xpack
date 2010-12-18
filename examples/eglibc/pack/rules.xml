@@ -4,15 +4,15 @@
     <prepare>
     <![CDATA[
 
-    cd $XPACK_SOURCE_DIR
-    # re-arrange sources
-    mv linuxthreads/* libc
-    mv ports libc
+cd "$XPACK_SOURCE_DIR"
+# re-arrange sources
+mv linuxthreads/* libc
+mv ports libc
 
-    # configure
-    cd $XPACK_BUILD_DIR
-    BASH_SHELL="/bin/sh" CC="gcc -fno-stack-protector -U_FORTIFY_SOURCE" $XPACK_SOURCE_DIR/libc/configure --prefix=/usr \
-            --sysconfdir=/etc --libexecdir=/usr/lib
+# configure
+cd "$XPACK_BUILD_DIR"
+BASH_SHELL="/bin/sh" CC="gcc -fno-stack-protector -U_FORTIFY_SOURCE" $XPACK_SOURCE_DIR/libc/configure --prefix=/usr \
+        --sysconfdir=/etc --libexecdir=/usr/lib
 
     ]]>
     </prepare>
@@ -20,8 +20,8 @@
     <build>
     <![CDATA[
 
-    cd $XPACK_BUILD_DIR
-    make PARALLELMFLAGS="-j2"
+cd "$XPACK_BUILD_DIR"
+make PARALLELMFLAGS="-j2"
 
     ]]>
     </build>
@@ -29,10 +29,10 @@
     <install>
     <![CDATA[
 
-    cd $XPACK_BUILD_DIR
-    make install_root="$XPACK_INSTALL_DIR" install
-    install -m 644 $XPACK_SOURCE_DIR/libc/posix/gai.conf $XPACK_INSTALL_DIR/etc/gai.conf
-    install -m 644 $XPACK_SOURCE_DIR/libc/nscd/nscd.conf $XPACK_INSTALL_DIR/etc/nscd.conf
+cd "$XPACK_BUILD_DIR"
+make install_root="$XPACK_INSTALL_DIR" install
+install -m 644 "$XPACK_SOURCE_DIR/libc/posix/gai.conf" "$XPACK_INSTALL_DIR/etc/gai.conf"
+install -m 644 "$XPACK_SOURCE_DIR/libc/nscd/nscd.conf" "$XPACK_INSTALL_DIR/etc/nscd.conf"
 
     ]]>
     </install>
@@ -41,7 +41,7 @@
     <clean>
     <![CDATA[
 
-    rm -fr $XPACK_SOURCE_DIR $XPACK_BUILD_DIR $XPACK_INSTALL_DIR
+rm -fr "$XPACK_SOURCE_DIR" "$XPACK_BUILD_DIR" "$XPACK_INSTALL_DIR"
 
     ]]>
     </clean>
