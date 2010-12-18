@@ -10,7 +10,10 @@
 require 'rubygems'
 require 'nokogiri'
 require 'srcpackage'
-require 'binpackage'
+require 'debpackage'
+require 'rpmpackage'
+require 'fileutils'
+require 'shlibcache'
 
 class PackageControl
 
@@ -34,14 +37,29 @@ class PackageControl
 
     @info = Hash.new
 
-    @info['maintainer'] = [
-      xml_doc.at_xpath('/control/info/maintainer/name').content,
-      xml_doc.at_xpath('/control/info/maintainer/email').content
-    ]
+    # copy maintainer, email, version, revision to package sections
+    [ 'maintainer', 'email', 'version', 'revision' ].each do |attr_name|
+      xpath = "/control/changelog/release[1]/@#{attr_name}"
+      attr_val = xml_doc.at_xpath(xpath).content
+      xpath = "/control/*[name() = 'source' or name() = 'package']"
+      xml_doc.xpath(xpath).each do |pkg_node|
+        pkg_node[attr_name] = attr_val
+      end
+    end
+
+    # copy source name and architecture-independent to binary package sections
+    xpath = '/control/source/@name'
+    source_name = xml_doc.at_xpath(xpath).content.strip
+    xpath = '/control/source/@architecture-independent'
+    is_arch_indep = begin xml_doc.at_xpath(xpath).content rescue 'false' end
+    xml_doc.xpath('/control/package').each do |pkg_node|
+      pkg_node['source'] = source_name
+      pkg_node['architecture-independent'] = is_arch_indep
+    end
 
     @defines = {
-      'XPACK_SOURCE_DIR'  => 'xpack/tmp-src',
-      'XPACK_INSTALL_DIR' => 'xpack/tmp-install'
+      'XPACK_SOURCE_DIR'  => 'pack/tmp-src',
+      'XPACK_INSTALL_DIR' => 'pack/tmp-install'
     }
 
     xml_doc.xpath('/control/defines/def').each do |node|
@@ -58,10 +76,21 @@ class PackageControl
     end
 
     @src_pkg = SourcePackage.new(xml_doc.at_xpath('/control/source'))
+    @bin_pkgs = xml_doc.xpath('/control/package').collect do |node|
+      pkg = case @parms[:format]
+        when :deb
+          DebianPackage.new(node)
+        when :rpm
+          RPMPackage.new(node)
+      end
+      pkg.base_dir = @defines['XPACK_INSTALL_DIR']
+      pkg.output_dir = @parms[:outdir]
+      pkg
+    end
   end
 
   def prepare()
-    ['SOURCE', 'BUILD', 'INSTALL'].each do |s|
+    ['SOURCE', 'BUILD'].each do |s|
       directory = @defines["XPACK_#{s}_DIR"]
       File.exist?(directory) or Dir.mkdir directory
     end
@@ -79,12 +108,23 @@ class PackageControl
 
   def install()
     install_dir = @defines['XPACK_INSTALL_DIR']
-    File.exist?(install_dir) or Dir.mkdir install_dir
+    if File.exist?(install_dir)
+      FileUtils.remove_entry_secure(install_dir)     
+    end
+    Dir.mkdir install_dir
     @src_pkg.install @defines
   end
 
   def package()
-    puts "package"
+    shlib_cache = ShlibCache.new()
+    @bin_pkgs.each do |pkg|
+      pkg.pack
+    end
+  end
+
+  def repackage()
+    install
+    package
   end
 
   def clean()
