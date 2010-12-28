@@ -8,8 +8,11 @@
 #
 
 require 'popen'
+require 'filemagic'
 
 class BinaryPackage
+  include FileMagic
+
   attr_reader :contents, :name, :version
   attr_accessor :base_dir, :output_dir
 
@@ -115,11 +118,6 @@ class BinaryPackage
     end
 
     return @contents
-  end
-
-  def file_type?(real_path)
-    file_type = `file #{real_path}`.split(':', 2)[1].strip
-    return file_type.start_with?('ERROR') ? '' : file_type
   end
 
   def strip_debug_symbols
