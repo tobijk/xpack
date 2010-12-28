@@ -72,7 +72,8 @@ class ShlibCache
       if self.class.system_package_manager == 'dpkg'
         self.extend ShlibCache::DpkgInterface
       else
-        raise StandardError "Unable to determine or unknown package manager."
+        raise StandardError \
+          "System uses unknown or unsupported package manager."
       end
     end
 
