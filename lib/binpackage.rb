@@ -77,13 +77,13 @@ class BinaryPackage
 
     # generate complete listing
     @contents.each_pair do |src, attributes|
-      type  = attributes[FILE_TYPE]
+      type_of_file = attributes[FILE_TYPE]
       mode  = attributes[FILE_PERMS]
       owner = attributes[FILE_OWNER]
       group = attributes[FILE_GROUP]
       listing = []
       real_path = File.expand_path(@base_dir + '/' + src)
-      case type
+      case type_of_file
         when 'dir'
           # we don't have to do anything for dir entries
         when 'file'
@@ -93,15 +93,15 @@ class BinaryPackage
             real_path.slice! /\/$/
             listing = Dir[real_path + '/**/*']
           else
-            attributes[FILE_TYPE] = file_type? real_path
+            attributes[FILE_TYPE] = file_type(real_path)
          end
       end
 
       listing.each do |entry|
-        file_type = file_type? entry
+        type_of_file = file_type(entry)
         entry.slice! /^#{Regexp.escape(@base_dir)}/
         unless @contents.has_key? entry
-          additional_contents[entry] = [ file_type, mode, owner, group ]
+          additional_contents[entry] = [ type_of_file, mode, owner, group ]
         end
       end
     end
@@ -121,9 +121,6 @@ class BinaryPackage
   end
 
   def strip_debug_symbols
-    match_executable = /ELF \d+-bit LSB executable.*, dynamically linked.*, not stripped/
-    match_library = /ELF \d+-bit LSB shared object.*, dynamically linked.*, not stripped/
-
     # create base_dir/usr/lib/debug
     [ 'usr', 'lib', 'debug' ].inject('') do |path, dir|
       File.exist?(@base_dir + '/' + path + '/' + dir) or
@@ -136,37 +133,36 @@ class BinaryPackage
       file_path = entry[0]
       real_path = @base_dir + '/' + file_path
       debug_path = @base_dir + '/usr/lib/debug/' + file_path
-      file_type = entry[1][FILE_TYPE]
-      case file_type
-        when match_executable, match_library
+      type_of_file = entry[1][FILE_TYPE]
+      if is_dynamic_object? type_of_file
 
-          # don't strip again
-          unless File.exist?(File.dirname(debug_path))
-            # create directory, if necessary
-            dir_list = File.dirname(file_path)\
-              .split('/')\
-              .delete_if { |s| s.empty? }
-            dir_list.inject('') do |path, dir|
-              File.exist?(@base_dir + '/usr/lib/debug/' + path + '/' + dir) or
-                Dir.mkdir(@base_dir + '/usr/lib/debug/' + path + '/' + dir)
-              path += "/#{dir}"
+        # don't strip again
+        unless File.exist?(File.dirname(debug_path))
+          # create directory, if necessary
+          dir_list = File.dirname(file_path)\
+            .split('/')\
+            .delete_if { |s| s.empty? }
+          dir_list.inject('') do |path, dir|
+            File.exist?(@base_dir + '/usr/lib/debug/' + path + '/' + dir) or
+              Dir.mkdir(@base_dir + '/usr/lib/debug/' + path + '/' + dir)
+            path += "/#{dir}"
+          end
+        end
+
+        # separate debug information
+        cmd_list = [
+          "objcopy --only-keep-debug #{real_path} #{debug_path}",
+          "objcopy --strip-unneeded #{real_path}",
+          "objcopy --add-gnu-debuglink=#{debug_path} #{real_path}"
+        ]
+        cmd_list.each do |cmd|
+          Popen.popen2(cmd) do |stdin, stdeo|
+            stdin.close
+            stdeo.each_line do |line|
+              puts line
             end
           end
-
-          # separate debug information
-          cmd_list = [
-            "objcopy --only-keep-debug #{real_path} #{debug_path}",
-            "objcopy --strip-unneeded #{real_path}",
-            "objcopy --add-gnu-debuglink=#{debug_path} #{real_path}"
-          ]
-          cmd_list.each do |cmd|
-            Popen.popen2(cmd) do |stdin, stdeo|
-              stdin.close
-              stdeo.each_line do |line|
-                puts line
-              end
-            end
-          end
+        end
       end
     end
   end

@@ -9,6 +9,7 @@
 
 require 'binpackage'
 require 'popen'
+require 'filemagic'
 
 class ShlibCache
 
@@ -53,6 +54,7 @@ class ShlibCache
   end
 
   class SharedObject
+    include FileMagic
 
     def self.system_package_manager
       [ 'dpkg', 'opkg', 'rpm' ].each do |packager_name|
@@ -63,11 +65,11 @@ class ShlibCache
       return 'unknown'
     end
 
-    def initialize(lib_path, lib_attributes)
+    def initialize(lib_path)
       @lib_path = lib_path
-      @lib_attributes = lib_attributes
       @package_name = nil
       @package_version = nil
+      @arch_word_size = nil
 
       if self.class.system_package_manager == 'dpkg'
         self.extend ShlibCache::DpkgInterface
@@ -97,20 +99,26 @@ class ShlibCache
       return package_name, package_version
     end
 
+    def arch_word_size
+      if @arch_word_size.nil?
+        @arch_word_size = super(file_type @lib_path)
+      else
+        @arch_word_size
+      end
+    end
+
   end
 
   def initialize
     @map = {}
     Popen.popen2('/sbin/ldconfig -p') do |stdin, stdeo|
-      re = /^\s*(\S+) \((.*)\) => (\S+)/
+      re = /^\s*(\S+) \(.*\) => (\S+)/
       stdin.close
       stdeo.each_line do |line|
-        match = re.match(line)
-        next if match.nil?
+        match = re.match(line) or next
         lib_name = match[1]
-        lib_attr = match[2].split(/,/).collect { |s| s.strip }
-        lib_path = match[3]
-        @map[lib_name] = SharedObject.new(lib_path, lib_attr)
+        lib_path = match[2]
+        @map[lib_name] = SharedObject.new(lib_path)
       end
     end
   end

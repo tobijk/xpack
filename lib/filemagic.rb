@@ -9,9 +9,31 @@
 
 module FileMagic
 
-  def file_type?(real_path)
-    file_type = `file #{real_path}`.split(':', 2)[1].strip
+  def file_type(path)
+    file_type = `file #{path}`.split(':', 2)[1].strip
     return file_type.start_with?('ERROR') ? '' : file_type
+  end
+
+  def is_dynamic_object?(file_type)
+    match_executable = /ELF \d+-bit LSB executable.*, dynamically linked.*, not stripped/
+    match_library = /ELF \d+-bit LSB shared object.*, dynamically linked.*, not stripped/
+
+    case file_type
+      when match_executable, match_library
+        return true
+      else
+        return false
+    end
+  end
+
+  def arch_word_size(file_type)
+    match_elf_obj = /ELF (\d+)-bit LSB.*/
+    match = file_type.match(match_elf_obj)
+    if match
+      return match[1]
+    else
+      return nil
+    end
   end
 
 end
