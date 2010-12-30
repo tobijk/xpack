@@ -54,6 +54,8 @@ class DebianPackage < BinaryPackage
         'i386'
       when /x86-64/
         'amd64'
+      when /arm/
+        'arm'
       else
         raise StandardError errmsg
       end
