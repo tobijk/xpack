@@ -92,7 +92,7 @@ class SourcePackage
               archive.read_data(1024) {|data| fp.write(data)}
             end
           end
-          File.chmod(entry.mode, full_path)
+          File.chmod(entry.mode, full_path) unless entry.symbolic_link? 
         end
       end
     end
