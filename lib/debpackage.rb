@@ -26,12 +26,15 @@ class DebianPackage < BinaryPackage
       (@is_arch_indep == 'true' ? 'all' : DebianPackage.debian_architecture)
 
     if not @requires.empty?
+      requires = @requires.sort do |a, b|
+        a[0] <=> b[0]
+      end
+
       meta += "Depends: " + \
-      @requires.collect do |pkg|
-        name = pkg[0]
-        version = pkg[1] == '==' ? "= #{@version}" : pkg[1]
+      requires.collect do |pkg,version|
+        version = "= #{@version}" if version == '=='
         if version
-          "#{name} (#{version})"
+          "#{pkg} (#{version})"
         else
           name
         end

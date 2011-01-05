@@ -38,7 +38,7 @@ class PackageControl
     @info = Hash.new
 
     # copy maintainer, email, version, revision to package sections
-    [ 'maintainer', 'email', 'version', 'revision' ].each do |attr_name|
+    [ 'maintainer', 'email', 'epoch', 'version', 'revision' ].each do |attr_name|
       xpath = "/control/changelog/release[1]/@#{attr_name}"
       attr_val = xml_doc.at_xpath(xpath).content
       xpath = "/control/*[name() = 'source' or name() = 'package']"
@@ -118,7 +118,11 @@ class PackageControl
   def package()
     shlib_cache = ShlibCache.new()
     @bin_pkgs.each do |pkg|
-      pkg.pack
+      pkg.prepare
+      shlib_cache.overlay_package(pkg)
+    end
+    @bin_pkgs.each do |pkg|
+      pkg.pack(shlib_cache)
     end
   end
 

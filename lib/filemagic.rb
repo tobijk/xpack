@@ -9,14 +9,14 @@
 
 module FileMagic
 
-  def file_type(path)
+  def self.file_type(path)
     file_type = `file #{path}`.split(':', 2)[1].strip
     return file_type.start_with?('ERROR') ? '' : file_type
   end
 
-  def is_dynamic_object?(file_type)
-    match_executable = /ELF \d+-bit LSB executable.*, dynamically linked.*, not stripped/
-    match_library = /ELF \d+-bit LSB shared object.*, dynamically linked.*, not stripped/
+  def self.is_dynamic_object?(file_type)
+    match_executable = /ELF \d+-bit LSB executable.*, dynamically linked.*/
+    match_library = /ELF \d+-bit LSB shared object.*, dynamically linked.*/
 
     case file_type
       when match_executable, match_library
@@ -26,7 +26,29 @@ module FileMagic
     end
   end
 
-  def arch_word_size(file_type)
+  def self.points_to_dynamic_object?(symlink)
+    file = fully_resolve_symlink(symlink)
+    return is_dynamic_object?(FileMagic.file_type file)
+  end
+
+  def self.fully_resolve_symlink(symlink)
+    return symlink unless File.symlink? symlink
+
+    file = File.expand_path(symlink)
+    while File.symlink?(file)
+      dirname = File.dirname(file)
+      file = File.readlink(file)
+      if file =~ /^\//
+        file = File.expand_path(file)
+      else
+        file = File.expand_path(dirname + '/' + file)
+      end
+    end
+
+    return file
+  end
+
+  def self.arch_word_size(file_type)
     match_elf_obj = /ELF (\d+)-bit LSB.*/
     match = file_type.match(match_elf_obj)
     if match

@@ -11,10 +11,7 @@ require 'popen'
 require 'filemagic'
 
 class BinaryPackage
-  include FileMagic
-
-  attr_reader :contents, :name, :version
-  attr_accessor :base_dir, :output_dir
+  attr_reader :contents, :name, :version, :base_dir, :output_dir
 
   FILE_TYPE  = 0
   FILE_PERMS = 1
@@ -31,25 +28,21 @@ class BinaryPackage
         raise RuntimeError
     end
 
-    @base_dir = 'xpack/tmp-install'
-    @output_dir = '..'
-
     # general info about binary package
     @name = bin_node['name']
     @summary = bin_node.at_xpath('summary').content.strip
     @description = bin_node.at_xpath('description')
     @maintainer = bin_node['maintainer'] + ' <' + bin_node['email'] + '>'
-    @version = bin_node['version'] + '-' + bin_node['revision']
+    @version = (bin_node['epoch'].to_i > 0 ? "#{bin_node['epoch']}:" : '') + \
+      bin_node['version'] + '-' + bin_node['revision']
     @section = bin_node['section'] || 'unknown'
     @source = bin_node['source']
     @is_arch_indep = bin_node['architecture-independent']
 
     # binary dependencies
-    @requires = bin_node.xpath('requires/package').collect do |pkg_node|
-      [ pkg_node['name'], pkg_node['version'] ]
-    end
-    @requires.sort! do |a, b|
-      a[0] <=> b[0]
+    @requires = {}
+    bin_node.xpath('requires/package').each do |pkg_node|
+      @requires[pkg_node['name']] = pkg_node['version']
     end
 
     # contents specification
@@ -63,9 +56,33 @@ class BinaryPackage
     @output_dir = '..'
   end
 
-  def pack
+  def epoch_and_upstream_version
+    # extract components, we need epoch and upstream version
+    version = @version.match(/^(?:(\d+):)?([-.+~a-zA-Z0-9]+?)(?:-([.~+a-zA-Z0-9]+)){0,1}$/)
+    epoch, upstream, release = version[1,4]
+
+    unless epoch.nil?
+      return "#{epoch}:#{upstream}"
+    else
+      return "#{upstream}"
+    end
+  end
+
+  def base_dir=(base_dir)
+    @base_dir = File.expand_path(base_dir) if base_dir
+  end
+
+  def output_dir=(output_dir)
+    @output_dir = File.expand_path(output_dir) if output_dir
+  end
+
+  def prepare
     generate_file_list
     strip_debug_symbols
+  end
+
+  def pack(shlib_cache)
+    shlib_deps(shlib_cache)
     do_pack 
   end
 
@@ -85,7 +102,7 @@ class BinaryPackage
       real_path = File.expand_path(@base_dir + '/' + src)
       case type_of_file
         when 'dir'
-          # we don't have to do anything for dir entries
+          attributes[FILE_TYPE] = 'directory'
         when 'file'
           if real_path =~ /(\*|\?)/
             listing = Dir[real_path]
@@ -93,12 +110,12 @@ class BinaryPackage
             real_path.slice! /\/$/
             listing = Dir[real_path + '/**/*']
           else
-            attributes[FILE_TYPE] = file_type(real_path)
+            attributes[FILE_TYPE] = FileMagic.file_type(real_path)
          end
       end
 
       listing.each do |entry|
-        type_of_file = file_type(entry)
+        type_of_file = FileMagic.file_type(entry)
         entry.slice! /^#{Regexp.escape(@base_dir)}/
         unless @contents.has_key? entry
           additional_contents[entry] = [ type_of_file, mode, owner, group ]
@@ -134,7 +151,7 @@ class BinaryPackage
       real_path = @base_dir + '/' + file_path
       debug_path = @base_dir + '/usr/lib/debug/' + file_path
       type_of_file = entry[1][FILE_TYPE]
-      if is_dynamic_object? type_of_file
+      if FileMagic.is_dynamic_object? type_of_file
 
         # don't strip again
         unless File.exist?(File.dirname(debug_path))
@@ -147,28 +164,55 @@ class BinaryPackage
               Dir.mkdir(@base_dir + '/usr/lib/debug/' + path + '/' + dir)
             path += "/#{dir}"
           end
-        end
 
-        # separate debug information
-        cmd_list = [
-          "objcopy --only-keep-debug #{real_path} #{debug_path}",
-          "objcopy --strip-unneeded #{real_path}",
-          "objcopy --add-gnu-debuglink=#{debug_path} #{real_path}"
-        ]
-        cmd_list.each do |cmd|
-          Popen.popen2(cmd) do |stdin, stdeo|
-            stdin.close
-            stdeo.each_line do |line|
-              puts line
+          # separate debug information
+          cmd_list = [
+            "objcopy --only-keep-debug #{real_path} #{debug_path}",
+            "objcopy --strip-unneeded #{real_path}",
+            "objcopy --add-gnu-debuglink=#{debug_path} #{real_path}"
+          ]
+          cmd_list.each do |cmd|
+            Popen.popen2(cmd) do |stdin, stdeo|
+              stdin.close
+              stdeo.each_line do |line|
+                puts line
+              end
             end
           end
-        end
-      end
+        end #unless
+
+      end #if
     end
   end
 
-  def shlib_deps
+  def shlib_deps(shlib_cache)
+    @contents.each do |path, attributes|
+      type_of_file = attributes[BinaryPackage::FILE_TYPE]
+      next unless FileMagic.is_dynamic_object? type_of_file
+      arch_word_size = FileMagic.arch_word_size type_of_file
 
+      cmd = "objdump -p #{@base_dir + '/' + path}"
+      Popen.popen2(cmd) do |stdin, stdeo|
+
+        stdin.close
+        stdeo.each_line do |line|
+          match = line.match(/NEEDED\s+(\S+)/)
+          next if match.nil?
+          lib_name = match[1]
+          shlib_cache[lib_name].each do |shared_obj|
+            if shared_obj.arch_word_size == arch_word_size
+              pkg, version = shared_obj.package_name_and_version
+              # don't overwrite existing entries and
+              # don't add the package itself
+              if @requires[pkg].nil? && pkg != @name
+                @requires[pkg] = ">= #{version}"
+              end
+            end
+          end 
+        end
+
+      end #popen2
+    end 
   end
 
 end
