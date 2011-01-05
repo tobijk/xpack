@@ -36,8 +36,7 @@ def print_usage()
   puts " --ignore-deps      ignore missing build dependencies                         "
   puts "                                                                              "
   puts " -f --format=<fmt>  package format to build, currently supported formats are: "
-  puts "                    'deb' - Debian package format (default)                   "
-  puts "                    'rpm' - RPM package format                                "
+  puts "                    'deb' - Debian package format                             "
   puts " -o --outdir=<dir>  place resulting binary packages in this directory         "
   puts "                                                                              "
   puts " -p --prepare-only  run the prepare target defined in the rules file          "
@@ -83,7 +82,7 @@ def parse_cmd_line()
         when '--ignore-deps'
           config[:ignore_deps] = true
         when '--format'
-          if not [:deb, :rpm].include? arg.intern
+          if not [:deb].include? arg.intern
             raise GetoptLong::Error, "invalid binary package format '#{arg}'"
           end
           config[:format] = arg.intern

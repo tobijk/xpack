@@ -11,7 +11,6 @@ require 'rubygems'
 require 'nokogiri'
 require 'srcpackage'
 require 'debpackage'
-require 'rpmpackage'
 require 'fileutils'
 require 'shlibcache'
 
@@ -80,8 +79,6 @@ class PackageControl
       pkg = case @parms[:format]
         when :deb
           DebianPackage.new(node)
-        when :rpm
-          RPMPackage.new(node)
       end
       pkg.base_dir = @defines['XPACK_INSTALL_DIR']
       pkg.output_dir = @parms[:outdir]
