@@ -36,13 +36,14 @@ class DebianPackage < BinaryPackage
         if version
           "#{pkg} (#{version})"
         else
-          name
+          pkg
         end
       end\
       .join(', ')
       meta += "\n"
     end
 
+    meta += "Description: #{@summary}\n"
     return meta
   end
 
