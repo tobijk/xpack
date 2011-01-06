@@ -18,8 +18,8 @@
     </defines>
 
     <source name="eglibc" architecture-independent="false">
-        <summary>The embedded variant of the GNU C library</summary>
         <description>
+            <summary>The embedded variant of the GNU C library</summary>
             <p>
                 Embedded GLIBC (EGLIBC) is a variant of the GNU C Library (GLIBC) 
             that is designed to work well on embedded systems. EGLIBC strives to be

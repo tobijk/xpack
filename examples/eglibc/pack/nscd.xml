@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="nscd" section="admin">
-    <summary>Embedded GNU C Library: Name Service Cache Daemon</summary>
     <description>
+        <summary>Embedded GNU C Library: Name Service Cache Daemon</summary>
         <p>
             A daemon which handles passwd, group and host lookups for running
         programs and caches the results for the next query. You should install

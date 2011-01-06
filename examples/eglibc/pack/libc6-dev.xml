@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="libc6-dev" section="libdevel">
-    <summary>Embedded GNU C Library: Development Libraries and Header Files</summary>
     <description>
+        <summary>Embedded GNU C Library: Development Libraries and Header Files</summary>
         <p>
             Contains the symlinks, headers, and object files needed to compile
         and link programs which use the standard C library.

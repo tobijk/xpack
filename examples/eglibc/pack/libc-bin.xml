@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="libc-bin" section="libs">
-    <summary>Embedded GNU C Library: Binaries</summary>
     <description>
+        <summary>Embedded GNU C Library: Binaries</summary>
         <p>
              This package contains utility programs related to the GNU C Library.
         </p>

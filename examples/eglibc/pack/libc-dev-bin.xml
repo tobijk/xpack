@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="libc-dev-bin" section="libdevel">
-    <summary>Embedded GNU C Library: Development Binaries</summary>
     <description>
+        <summary>Embedded GNU C Library: Development Binaries</summary>
         <p>
             This package contains utility programs related to the GNU C Library
         development package.

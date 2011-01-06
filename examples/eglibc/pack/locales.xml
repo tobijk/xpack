@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="locales" section="libs">
-    <summary>Internationalization support files for the GNU C library</summary>
     <description>
+        <summary>Internationalization support files for the GNU C library</summary>
         <p>
             Machine-readable data files, shared objects and programs used by the
         C library for localization (l10n) and internationalization (i18n) support.
