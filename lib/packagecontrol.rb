@@ -9,8 +9,8 @@
 
 require 'rubygems'
 require 'nokogiri'
-require 'srcpackage'
-require 'debpackage'
+require 'sourcepackage'
+require 'debianpackage'
 require 'fileutils'
 require 'shlibcache'
 

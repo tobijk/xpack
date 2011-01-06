@@ -14,7 +14,7 @@ INSTALL_DIR = File.expand_path(File.dirname(File.symlink?(__FILE__) ?
 $LOAD_PATH.unshift INSTALL_DIR + '/lib'
 
 require 'getoptlong'
-require 'pkgcontrol'
+require 'packagecontrol'
 
 XPACK_VERSION = "0.1.0"
 

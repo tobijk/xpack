@@ -7,7 +7,7 @@
 # the license text can be found in the file LICENSE included in the source distribution.
 #
 
-require 'binpackage'
+require 'binarypackage'
 
 class DebianPackage < BinaryPackage
 

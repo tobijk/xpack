@@ -30,7 +30,7 @@ class BinaryPackage
 
     # general info about binary package
     @name = bin_node['name']
-    @summary = bin_node.at_xpath('summary').content.strip
+    @summary = bin_node.at_xpath('description/summary').content.strip
     @description = bin_node.at_xpath('description')
     @maintainer = bin_node['maintainer'] + ' <' + bin_node['email'] + '>'
     @version = (bin_node['epoch'].to_i > 0 ? "#{bin_node['epoch']}:" : '') + \

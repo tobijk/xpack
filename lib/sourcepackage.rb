@@ -26,7 +26,7 @@ class SourcePackage
 
     # general info about source package
     @name = source_node['name']
-    @summary = source_node.at_xpath('summary').content.strip
+    @summary = source_node.at_xpath('description/summary').content.strip
     @description = source_node.at_xpath('description')
 
     # build dependencies
