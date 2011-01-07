@@ -11,6 +11,7 @@ require 'rubygems'
 require 'nokogiri'
 require 'libarchive_ruby'
 require 'popen'
+require 'packagedescription'
 
 class SourcePackage
 
@@ -26,8 +27,7 @@ class SourcePackage
 
     # general info about source package
     @name = source_node['name']
-    @summary = source_node.at_xpath('description/summary').content.strip
-    @description = source_node.at_xpath('description')
+    @description = PackageDescription.new(source_node.at_xpath('description'))
 
     # build dependencies
     @requires = source_node.xpath('requires/package').collect do |pkg_node|

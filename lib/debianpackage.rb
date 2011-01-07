@@ -43,7 +43,9 @@ class DebianPackage < BinaryPackage
       meta += "\n"
     end
 
-    meta += "Description: #{@summary}\n"
+    meta += "Description: #{@description.summary}\n"
+    full_description = @description.full_description
+    meta += "#{full_description}\n" unless full_description.empty?
     return meta
   end
 
