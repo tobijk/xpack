@@ -8,11 +8,12 @@
 #
 
 require 'binarypackage'
+require 'digest/md5'
 
 class DebianPackage < BinaryPackage
 
   def do_pack
-    puts meta_data + "\n"
+    puts md5sums
   end
 
   def meta_data
@@ -47,6 +48,32 @@ class DebianPackage < BinaryPackage
     full_description = @description.full_description
     meta += "#{full_description}\n" unless full_description.empty?
     return meta
+  end
+
+  def md5sums
+    result = ""
+
+    @contents.each do |entry|
+      file_path = entry[0]
+      real_path = @base_dir + '/' + file_path
+
+      next unless File.file? real_path
+
+      begin
+        md5 = Digest::MD5.new
+        File.open(real_path, 'r') do |fp|
+          while buf = fp.read(1024)
+            md5.update(buf)
+          end
+        end
+        result << "#{md5.hexdigest}  #{file_path.sub(/^\//, '')}\n"
+      rescue Exception => e
+        msg = "Error while generating md5sum for '#{file_path}': #{e.message}"
+        raise RuntimeError msg
+      end
+    end
+
+    return result
   end
 
   def self.debian_architecture
