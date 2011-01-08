@@ -61,6 +61,9 @@ class PackageControl
       'XPACK_INSTALL_DIR' => 'pack/tmp-install'
     }
 
+    @defines['XPACK_BASE_DIR'] = File.expand_path(
+      File.dirname(File.expand_path(xml_spec_file_name)) + '/..')
+
     xml_doc.xpath('/control/defines/def').each do |node|
       @defines[node['name']] = node['value']
     end
@@ -71,10 +74,17 @@ class PackageControl
 
     # these have to be absolute paths
     ['SOURCE', 'BUILD', 'INSTALL'].each do |s|
-      @defines["XPACK_#{s}_DIR"] = File.expand_path @defines["XPACK_#{s}_DIR"]
+      @defines["XPACK_#{s}_DIR"] = \
+      if @defines["XPACK_#{s}_DIR"].start_with? '/'
+        File.expand_path @defines["XPACK_#{s}_DIR"]
+      else
+        File.expand_path(@defines['XPACK_BASE_DIR'] + '/' + @defines["XPACK_#{s}_DIR"])
+      end
     end
 
     @src_pkg = SourcePackage.new(xml_doc.at_xpath('/control/source'))
+    @src_pkg.base_dir = @defines['XPACK_BASE_DIR']
+
     @bin_pkgs = xml_doc.xpath('/control/package').collect do |node|
       pkg = case @parms[:format]
         when :deb

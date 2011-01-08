@@ -22,7 +22,7 @@ class ShlibCache
         stdin.close
         result = stdeo.read.split(':', 2)[0]
       end
-      if exit_status != 0:
+      if exit_status != 0
         return nil
       else
         return result.strip
@@ -59,7 +59,7 @@ class ShlibCache
     def self.system_package_manager
       [ 'dpkg', 'opkg', 'rpm' ].each do |packager_name|
         [ '/usr/bin/', '/usr/sbin', '/bin', '/sbin' ].each do |path|
-          if File.exist?(path + '/' + packager_name): return packager_name end
+          if File.exist?(path + '/' + packager_name) then return packager_name end
         end
       end
       return 'unknown'

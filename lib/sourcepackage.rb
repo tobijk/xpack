@@ -14,6 +14,7 @@ require 'popen'
 require 'packagedescription'
 
 class SourcePackage
+  attr_accessor :base_dir
 
   def initialize(xml_config)
     case xml_config
@@ -24,6 +25,8 @@ class SourcePackage
       else
         raise RuntimeError
     end
+
+    @base_dir = '.'
 
     # general info about source package
     @name = source_node['name']
@@ -52,6 +55,10 @@ class SourcePackage
 
   def unpack(source_dir = '.')
     @sources.each do |src_name|
+      # rebase to source package folder
+      src_name = File.expand_path(@base_dir + '/' + src_name) \
+        unless src_name.start_with? '/'
+      # check if file is there
       unless File.file? src_name
         raise RuntimeError, "package file '#{src_name}' not found"
       end
