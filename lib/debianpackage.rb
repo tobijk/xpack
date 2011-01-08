@@ -53,7 +53,7 @@ class DebianPackage < BinaryPackage
     errmsg = "failed to detect machine architecture."
 
     march = `uname -m`.chomp
-    if $? != 0: raise StandardError errmsg end
+    if $? != 0 then raise StandardError errmsg end
 
     case march
       when /i.86/
