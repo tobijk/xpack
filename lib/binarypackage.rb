@@ -36,7 +36,8 @@ class BinaryPackage
       bin_node['version'] + '-' + bin_node['revision']
     @section = bin_node['section'] || 'unknown'
     @source = bin_node['source']
-    @is_arch_indep = bin_node['architecture-independent']
+    @is_arch_indep = \
+      bin_node['architecture-independent'] == 'true' ? true : false
 
     # binary dependencies
     @requires = {}

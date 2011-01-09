@@ -13,7 +13,16 @@ require 'digest/md5'
 class DebianPackage < BinaryPackage
 
   def do_pack
-    puts md5sums
+    package_file_name = @name + '_' + @version.sub(/^\d+:/, '') + \
+      '_' + debian_architecture + '.deb'
+    package_file_name = File.expand_path(@output_dir + '/' + package_file_name)
+
+    puts package_file_name
+    puts meta_data
+  end
+
+  def debian_binary
+    return "2.0\n"
   end
 
   def meta_data
@@ -23,8 +32,7 @@ class DebianPackage < BinaryPackage
     meta += "Source: #{@source}\n"
     meta += "Maintainer: #{@maintainer}\n"
     meta += "Section: #{@section}\n"
-    meta += "Architecture: %s\n" % \
-      (@is_arch_indep == 'true' ? 'all' : DebianPackage.debian_architecture)
+    meta += "Architecture: #{debian_architecture}\n"
 
     if not @requires.empty?
       requires = @requires.sort do |a, b|
@@ -76,12 +84,11 @@ class DebianPackage < BinaryPackage
     return result
   end
 
-  def self.debian_architecture
+  def debian_architecture
+    return 'all' if @is_arch_indep
     errmsg = "failed to detect machine architecture."
-
     march = `uname -m`.chomp
     if $? != 0 then raise StandardError errmsg end
-
     case march
       when /i.86/
         'i386'
@@ -91,7 +98,7 @@ class DebianPackage < BinaryPackage
         'arm'
       else
         raise StandardError errmsg
-      end
+    end
   end
 
 end
