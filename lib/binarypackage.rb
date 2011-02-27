@@ -99,6 +99,7 @@ class BinaryPackage
       owner = attributes[FILE_OWNER]
       group = attributes[FILE_GROUP]
       listing = []
+      # due to expand_path we never have a trailing '/'
       real_path = File.expand_path(@base_dir + '/' + src)
       case type_of_file
         when 'dir'
@@ -145,41 +146,39 @@ class BinaryPackage
       path += "/#{dir}"
     end
 
-    # strip unstripped, dynamic objects
+    # strip unstripped objects
     @contents.each do |entry|
       file_path = entry[0]
       real_path = @base_dir + '/' + file_path
       debug_path = @base_dir + '/usr/lib/debug/' + file_path
       type_of_file = entry[1][FILE_TYPE]
-      if FileMagic.is_dynamic_object? type_of_file
+      if FileMagic.unstripped? type_of_file
 
-        # don't strip again
-        unless File.exist?(File.dirname(debug_path))
-          # create directory, if necessary
-          dir_list = File.dirname(file_path)\
-            .split('/')\
-            .delete_if { |s| s.empty? }
-          dir_list.inject('') do |path, dir|
-            File.exist?(@base_dir + '/usr/lib/debug/' + path + '/' + dir) or
-              Dir.mkdir(@base_dir + '/usr/lib/debug/' + path + '/' + dir)
-            path += "/#{dir}"
-          end
+        # create directory, if necessary
+        dir_list = File.dirname(file_path)\
+          .split('/')\
+          .delete_if { |s| s.empty? }
+        dir_list.inject('') do |path, dir|
+          File.exist?(@base_dir + '/usr/lib/debug/' + path + '/' + dir) or
+            Dir.mkdir(@base_dir + '/usr/lib/debug/' + path + '/' + dir)
+          path += "/#{dir}"
+        end
 
-          # separate debug information
-          cmd_list = [
-            "objcopy --only-keep-debug #{real_path} #{debug_path}",
-            "objcopy --strip-unneeded #{real_path}",
-            "objcopy --add-gnu-debuglink=#{debug_path} #{real_path}"
-          ]
-          cmd_list.each do |cmd|
-            Popen.popen2(cmd) do |stdin, stdeo|
-              stdin.close
-              stdeo.each_line do |line|
-                puts line
-              end
+        # separate debug information
+        cmd_list = [
+          "objcopy --only-keep-debug #{real_path} #{debug_path}",
+          "objcopy --strip-unneeded #{real_path}",
+          "objcopy --add-gnu-debuglink=#{debug_path} #{real_path}"
+        ]
+
+        cmd_list.each do |cmd|
+          Popen.popen2(cmd) do |stdin, stdeo|
+            stdin.close
+            stdeo.each_line do |line|
+              puts line
             end
           end
-        end #unless
+        end
 
       end #if
     end

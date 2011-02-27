@@ -14,6 +14,17 @@ module FileMagic
     return file_type.start_with?('ERROR') ? '' : file_type
   end
 
+  def self.unstripped?(file_type)
+    match_unstripped_elf = /ELF \d+-bit LSB .*, .* linked.*, .*, not stripped/
+
+    case file_type
+      when match_unstripped_elf
+        return true
+      else
+        return false
+    end
+  end
+
   def self.is_dynamic_object?(file_type)
     match_executable = /ELF \d+-bit LSB executable.*, dynamically linked.*/
     match_library = /ELF \d+-bit LSB shared object.*, dynamically linked.*/
