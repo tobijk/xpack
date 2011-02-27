@@ -9,7 +9,7 @@
 
 require 'rubygems'
 require 'nokogiri'
-require 'libarchive_ruby'
+require 'libarchive_rs'
 require 'popen'
 require 'packagedescription'
 
