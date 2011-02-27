@@ -27,7 +27,7 @@
         <file src="/usr/bin/localedef"/>
         <file src="/usr/bin/locale"/>
         <file src="/usr/bin/tzselect"/>
-        <file src="/usr/lib/pt_chown"/>
+        <file mode="04755" src="/usr/lib/pt_chown"/>
         <file src="/usr/sbin/iconvconfig"/>
         <file src="/usr/sbin/rpcinfo"/>
         <file src="/usr/sbin/zdump"/>
