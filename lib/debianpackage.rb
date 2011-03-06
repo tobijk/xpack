@@ -83,13 +83,13 @@ class DebianPackage < BinaryPackage
     ar = Archive.write_open_filename(path, Archive::COMPRESSION_GZIP,
       Archive::FORMAT_TAR_USTAR) do |ar|
 
-      @contents.each do |entry|
-        file_path  = entry[0]
-        file_type  = entry[1][BinaryPackage::FILE_TYPE ]
-        file_mode  = entry[1][BinaryPackage::FILE_PERMS]
+      @contents.each do |entry_name, attributes|
+        file_path  = entry_name
+        file_type  = attributes[BinaryPackage::FILE_TYPE ]
+        file_mode  = attributes[BinaryPackage::FILE_PERMS]
         file_mode  = file_mode.oct if file_mode.class == String
-        file_owner = entry[1][BinaryPackage::FILE_OWNER]
-        file_group = entry[1][BinaryPackage::FILE_GROUP]
+        file_owner = attributes[BinaryPackage::FILE_OWNER]
+        file_group = attributes[BinaryPackage::FILE_GROUP]
         real_path  = File.expand_path(@base_dir + '/' + file_path)
  
         begin
