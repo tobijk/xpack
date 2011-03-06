@@ -147,12 +147,10 @@ class BinaryPackage
     end
 
     # strip unstripped objects
-    @contents.each do |entry|
-      file_path = entry[0]
+    @contents.each do |file_path, attributes|
       real_path = @base_dir + '/' + file_path
       debug_path = @base_dir + '/usr/lib/debug/' + file_path
-      type_of_file = entry[1][FILE_TYPE]
-      if FileMagic.unstripped? type_of_file
+      if FileMagic.unstripped? attributes[FILE_TYPE]
 
         # create directory, if necessary
         dir_list = File.dirname(file_path)\
