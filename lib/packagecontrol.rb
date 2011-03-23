@@ -39,7 +39,8 @@ class PackageControl
     # copy maintainer, email, version, revision to package sections
     [ 'maintainer', 'email', 'epoch', 'version', 'revision' ].each do |attr_name|
       xpath = "/control/changelog/release[1]/@#{attr_name}"
-      attr_val = xml_doc.at_xpath(xpath).content
+      next unless attr_node = xml_doc.at_xpath(xpath)
+      attr_val = attr_node.content.strip
       xpath = "/control/*[name() = 'source' or name() = 'package']"
       xml_doc.xpath(xpath).each do |pkg_node|
         pkg_node[attr_name] = attr_val
