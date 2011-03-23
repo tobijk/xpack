@@ -115,11 +115,15 @@ class PackageControl
   end
 
   def install()
+    source_dir  = @defines['XPACK_SOURCE_DIR']
+    build_dir   = @defines['XPACK_BUILD_DIR']
     install_dir = @defines['XPACK_INSTALL_DIR']
-    if File.exist?(install_dir)
-      FileUtils.remove_entry_secure(install_dir)     
+    if File.exist?(install_dir) and \
+      install_dir != source_dir and \
+      install_dir != build_dir
+        FileUtils.remove_entry_secure(install_dir)
     end
-    Dir.mkdir install_dir
+    File.exist?(install_dir) or Dir.mkdir install_dir
     @src_pkg.install @defines
   end
 
