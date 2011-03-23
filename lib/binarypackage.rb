@@ -33,7 +33,8 @@ class BinaryPackage
     @description = PackageDescription.new(bin_node.at_xpath('description'))
     @maintainer = bin_node['maintainer'] + ' <' + bin_node['email'] + '>'
     @version = (bin_node['epoch'].to_i > 0 ? "#{bin_node['epoch']}:" : '') + \
-      bin_node['version'] + '-' + bin_node['revision']
+      bin_node['version'] + \
+      (bin_node['revision'] ? "-#{bin_node['revision']}" : "")
     @section = bin_node['section'] || 'unknown'
     @source = bin_node['source']
     @is_arch_indep = \
