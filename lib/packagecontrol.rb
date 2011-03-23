@@ -58,7 +58,7 @@ class PackageControl
     end
 
     @defines = {
-      'XPACK_SOURCE_DIR'  => 'pack/tmp-src',
+      'XPACK_SOURCE_DIR'  => 'pack/tmp-source',
       'XPACK_INSTALL_DIR' => 'pack/tmp-install'
     }
 
