@@ -15,7 +15,7 @@ module FileMagic
   end
 
   def self.unstripped?(file_type)
-    match_unstripped_elf = /ELF \d+-bit LSB .*, .* linked.*, .*, not stripped/
+    match_unstripped_elf = /ELF \d+-bit LSB .*, .* linked.*, .*not stripped/
 
     case file_type
       when match_unstripped_elf
