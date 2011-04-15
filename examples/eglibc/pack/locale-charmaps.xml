@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="locales" section="libs">
+<package name="locale-charmaps" section="libs">
     <description>
         <summary>Internationalization support files for the GNU C library</summary>
         <p>
@@ -10,8 +10,5 @@
 
     <contents>
         <file src="/usr/share/i18n/charmaps/"/>
-        <file src="/usr/share/i18n/locales/"/>
-        <dir src="/usr/share/locale"/>
-        <dir src="/usr/lib/locale"/>
     </contents>
 </package>

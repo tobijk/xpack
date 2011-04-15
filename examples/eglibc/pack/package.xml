@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE control [
-<!ENTITY rules        SYSTEM "rules.xml">
-<!ENTITY libc-bin     SYSTEM "libc-bin.xml">
-<!ENTITY libc-dev-bin SYSTEM "libc-dev-bin.xml">
-<!ENTITY nscd         SYSTEM "nscd.xml">
-<!ENTITY libc6        SYSTEM "libc6.xml">
-<!ENTITY libc6-dev    SYSTEM "libc6-dev.xml">
-<!ENTITY locales      SYSTEM "locales.xml">
-<!ENTITY changelog    SYSTEM "changelog.xml">
+<!ENTITY rules           SYSTEM "rules.xml">
+<!ENTITY libc-bin        SYSTEM "libc-bin.xml">
+<!ENTITY libc-dev-bin    SYSTEM "libc-dev-bin.xml">
+<!ENTITY nscd            SYSTEM "nscd.xml">
+<!ENTITY libc6           SYSTEM "libc6.xml">
+<!ENTITY libc6-dev       SYSTEM "libc6-dev.xml">
+<!ENTITY locale-charmaps SYSTEM "locale-charmaps.xml">
+<!ENTITY locale-en       SYSTEM "locale-en.xml">
+<!ENTITY changelog       SYSTEM "changelog.xml">
 ]>
 <control xmlns:xi="http://www.w3.org/2001/XInclude">
 
@@ -53,7 +54,10 @@
     &nscd;
     &libc6;
     &libc6-dev;
-    &locales;
+
+    <!-- locale stuff -->
+    &locale-charmaps;
+    &locale-en;
 
     <!-- changelog -->
     &changelog;

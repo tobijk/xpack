@@ -37,7 +37,6 @@ install -m 644 "$XPACK_SOURCE_DIR/libc/nscd/nscd.conf" "$XPACK_INSTALL_DIR/etc/n
     ]]>
     </install>
 
-
     <clean>
     <![CDATA[
 

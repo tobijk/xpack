@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="locale-en" section="libs">
+    <description>
+        <summary>English locales</summary>
+    </description>
+
+    <contents>
+        <file src="/usr/share/i18n/locales/en_*"/>
+        <dir src="/usr/lib/locale"/>
+    </contents>
+</package>
