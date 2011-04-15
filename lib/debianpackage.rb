@@ -84,7 +84,7 @@ class DebianPackage < BinaryPackage
       Archive::FORMAT_TAR_USTAR) do |ar|
 
       @contents.each do |entry_name, attributes|
-        file_path  = entry_name
+        file_path  = '.' + entry_name
         file_type  = attributes[BinaryPackage::FILE_TYPE ]
         file_mode  = attributes[BinaryPackage::FILE_PERMS]
         file_mode  = file_mode.oct if file_mode.class == String
