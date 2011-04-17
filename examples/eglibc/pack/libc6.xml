@@ -8,8 +8,10 @@
         and the standard math library, as well as many others.
         </p>
     </description>
+
     <requires>
         <package name="libc-bin" version="=="/>
+        <package name="tzdata"/>
     </requires>
 
     <contents>
