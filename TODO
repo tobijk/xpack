@@ -1,0 +1,5 @@
+* provides, suggests, replaces
+* pre/post un/install scripts
+* conffiles
+* list/check build depends (dpkg, opkg)
+* shlibcache works with opkg
