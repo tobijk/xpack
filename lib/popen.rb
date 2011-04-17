@@ -70,7 +70,9 @@ module Popen
 
   def self.update_env(env)
     ENV.delete_if do |key, value|
-      not ['PATH', 'USER', 'USERNAME'].include?(key)
+      not (
+        key.start_with?('XPACK_') || ['PATH', 'USER', 'USERNAME'].include?(key)
+      )
     end
     env.each_pair do |key, value|
       ENV[key] = value
