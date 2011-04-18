@@ -20,4 +20,15 @@
         <file src="/lib/*.so*"/>
         <file src="/usr/lib/gconv/"/>
     </contents>
+
+    <maintainer-scripts>
+
+        <postinst><![CDATA[
+if ! grep -q '^include /etc/ld.so.conf.d/.*\.conf$' /etc/ld.so.conf ; then
+    echo 'include /etc/ld.so.conf.d/*.conf' >> /etc/ld.so.conf
+fi
+ldconfig 
+        ]]></postinst>
+
+    </maintainer-scripts>
 </package>
