@@ -53,6 +53,14 @@ class BinaryPackage
       @content_spec[src] = [ node.name, node['mode'], node['owner'], node['group'] ]
     end
 
+    # maintainer scripts
+    @maintainer_scripts = {}
+    bin_node.xpath('maintainer-scripts/*').each do |node|
+      if [ 'preinst', 'postinst', 'prerm', 'postrm' ].include? node.name
+        @maintainer_scripts[node.name] = "#!/bin/sh -e\n" + node.content
+      end
+    end
+
     @base_dir = 'pack/tmp-install'
     @output_dir = '..'
   end

@@ -55,13 +55,14 @@ class DebianPackage < BinaryPackage
       Archive::FORMAT_TAR_USTAR) do |ar|
 
       contents = [
-        [ 'control', meta_data ],
-        [ 'md5sums', md5sums   ]
+        [ 'control',  meta_data, 0644 ],
+        [ 'md5sums',  md5sums, 0644 ]
       ]
+      @maintainer_scripts.each_pair { |k, v| contents << [ k, v, 0754 ] }
 
-      contents.each do |entry_name, entry_content|
+      contents.each do |entry_name, entry_content, mode|
         ar.new_entry do |ar_entry|
-          ar_entry.mode = Archive::ENTRY_FILE | 0644
+          ar_entry.mode = Archive::ENTRY_FILE | mode
           ar_entry.pathname = entry_name
           ar_entry.atime = Time.now.to_i
           ar_entry.mtime = Time.now.to_i
