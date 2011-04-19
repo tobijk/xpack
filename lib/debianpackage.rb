@@ -133,22 +133,29 @@ class DebianPackage < BinaryPackage
     meta += "Section: #{@section}\n"
     meta += "Architecture: #{debian_architecture}\n"
 
-    if not @requires.empty?
-      requires = @requires.sort do |a, b|
-        a[0] <=> b[0]
-      end
+    dep_type_2_str = {
+      'requires'  => 'Depends: ',
+      'provides'  => 'Provides: ',
+      'conflicts' => 'Conflicts: ',
+      'replaces'  => 'Replaces: '
+    }
 
-      meta += "Depends: " + \
-      requires.collect do |pkg,version|
-        version = "= #{@version}" if version == '=='
-        if version
-          "#{pkg} (#{version})"
-        else
-          pkg
-        end
-      end\
-      .join(', ')
-      meta += "\n"
+    [ 'requires', 'provides', 'conflicts', 'replaces' ].each do |dep_type|
+      if not eval "@#{dep_type}.empty?"
+        pkg_list = eval "@#{dep_type}.sort { |a, b| a[0] <=> b[0] }"
+
+        meta += dep_type_2_str[dep_type] + \
+        pkg_list.collect do |pkg,version|
+          version = "= #{@version}" if version == '=='
+          if version
+            "#{pkg} (#{version})"
+          else
+            pkg
+          end
+        end\
+        .join(', ')
+        meta += "\n"
+      end
     end
 
     meta += "Description: #{@description.summary}\n"

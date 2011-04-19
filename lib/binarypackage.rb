@@ -40,10 +40,16 @@ class BinaryPackage
     @is_arch_indep = \
       bin_node['architecture-independent'] == 'true' ? true : false
 
+    @requires  = {}
+    @provides  = {}
+    @conflicts = {}
+    @replaces  = {}
+
     # binary dependencies
-    @requires = {}
-    bin_node.xpath('requires/package').each do |pkg_node|
-      @requires[pkg_node['name']] = pkg_node['version']
+    [ 'requires', 'provides', 'conflicts', 'replaces' ].each do |dep_type|
+      bin_node.xpath("#{dep_type}/package").each do |pkg_node|
+        eval "@#{dep_type}[pkg_node['name']] = pkg_node['version']"
+      end
     end
 
     # contents specification
