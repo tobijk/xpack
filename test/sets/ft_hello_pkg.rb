@@ -71,6 +71,8 @@ EOF
 
   def check_data_file(data)
     Archive.read_open_memory(data) do |ar|
+      entry = ar.next_header
+      assert_equal "./usr/bin/hello", entry.pathname
     end
   end
 
