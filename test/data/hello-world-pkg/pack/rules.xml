@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rules>
+
+    <prepare>
+    <![CDATA[
+
+touch $XPACK_SOURCE_DIR/prepare.stamp
+
+    ]]>
+    </prepare>
+
+    <build>
+    <![CDATA[
+
+cd $XPACK_BUILD_DIR
+gcc -O2 -g -o hello hello_world.c
+
+    ]]>
+    </build>
+
+    <install>
+    <![CDATA[
+
+mkdir -p $XPACK_INSTALL_DIR/usr/bin
+cp $XPACK_BUILD_DIR/hello $XPACK_INSTALL_DIR/usr/bin
+
+    ]]>
+    </install>
+
+    <clean>
+    <![CDATA[
+
+rm -fr "$XPACK_SOURCE_DIR" "$XPACK_INSTALL_DIR"
+
+    ]]>
+    </clean>
+
+</rules>
