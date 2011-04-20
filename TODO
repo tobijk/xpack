@@ -1,7 +1,7 @@
 * patches
-* provides, conflicts, replaces
 * conffiles
 * list/check build depends (dpkg, opkg)
 * shlibcache works with opkg
 * relaxng schema
 * filter elements by arch
+* generate debug packages
