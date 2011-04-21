@@ -31,6 +31,9 @@ EOF
     pkg_ctrl = PackageControl.new(SPEC_FILE, {})
     pkg_ctrl.default()
 
+    # test prepare target executed?
+    assert File.exist?("#{XPACK_SOURCE_DIR}/prepare.stamp")
+
     # make sure building went ok
     assert File.exist?(PACKAGE_FILE)
     assert File.exist?("#{XPACK_SOURCE_DIR}/hello_world.c")
@@ -52,7 +55,10 @@ EOF
       check_data_file(ar.read_data)
     end
 
+    # check that cleanup was done
     pkg_ctrl.clean()
+    assert !File.exist?(XPACK_SOURCE_DIR)
+    assert !File.exist?(XPACK_INSTALL_DIR)
   end
 
   private
