@@ -55,10 +55,13 @@ class DebianPackage < BinaryPackage
       Archive::FORMAT_TAR_USTAR) do |ar|
 
       contents = [
-        [ 'control',  meta_data, 0644 ],
-        [ 'md5sums',  md5sums, 0644 ]
+        [ 'control', meta_data, 0644 ],
+        [ 'md5sums', md5sums, 0644 ],
       ]
       @maintainer_scripts.each_pair { |k, v| contents << [ k, v, 0754 ] }
+
+      conffiles = conffiles()
+      contents << [ 'conffiles', conffiles, 0644 ] unless conffiles.empty?
 
       contents.each do |entry_name, entry_content, mode|
         ar.new_entry do |ar_entry|
@@ -84,13 +87,13 @@ class DebianPackage < BinaryPackage
     ar = Archive.write_open_filename(path, Archive::COMPRESSION_GZIP,
       Archive::FORMAT_TAR_USTAR) do |ar|
 
-      @contents.each do |entry_name, attributes|
-        file_path  = '.' + entry_name
-        file_type  = attributes[BinaryPackage::FILE_TYPE ]
-        file_mode  = attributes[BinaryPackage::FILE_PERMS]
+      @contents.each do |src, attr|
+        file_path  = '.' + src
+        file_type  = attr.type
+        file_mode  = attr.mode
         file_mode  = file_mode.oct if file_mode.class == String
-        file_owner = attributes[BinaryPackage::FILE_OWNER]
-        file_group = attributes[BinaryPackage::FILE_GROUP]
+        file_owner = attr.owner
+        file_group = attr.group
         real_path  = File.expand_path(@base_dir + '/' + file_path)
  
         begin
@@ -167,12 +170,9 @@ class DebianPackage < BinaryPackage
   def md5sums
     result = ""
 
-    @contents.each do |entry|
-      file_path = entry[0]
-      real_path = @base_dir + '/' + file_path
-
+    @contents.each do |src, attr|
+      real_path = @base_dir + '/' + src
       next unless File.file? real_path
-
       begin
         md5 = Digest::MD5.new
         File.open(real_path, 'r') do |fp|
@@ -180,11 +180,29 @@ class DebianPackage < BinaryPackage
             md5.update(buf)
           end
         end
-        result << "#{md5.hexdigest}  #{file_path.sub(/^\//, '')}\n"
+        result << "#{md5.hexdigest}  #{src.sub(/^\//, '')}\n"
       rescue Exception => e
-        msg = "Error while generating md5sum for '#{file_path}': #{e.message}"
+        msg = "Error while generating md5sum for '#{src}': #{e.message}"
         raise RuntimeError msg
       end
+    end
+
+    return result
+  end
+
+  def conffiles
+    result = ""
+
+    @contents.each do |src, attr|
+      next if attr.conffile == false
+
+      real_path = @base_dir + '/' + src
+      next unless File.file? real_path
+
+      attr.conffile = true if attr.conffile.nil? && src.start_with?('/etc/')
+      next unless attr.conffile
+
+      result << src + "\n"
     end
 
     return result

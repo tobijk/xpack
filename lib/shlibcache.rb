@@ -133,14 +133,14 @@ class ShlibCache
   def overlay_package(binary_package)
     base_dir = binary_package.base_dir
 
-    binary_package.contents.each do |src, attributes|
+    binary_package.contents.each do |src, attr|
       real_path = binary_package.base_dir + '/' + src
 
       file_type = if File.symlink?(real_path)
         target = FileMagic.fully_resolve_symlink(real_path)
         FileMagic.file_type target
       else
-        attributes[BinaryPackage::FILE_TYPE]
+        attr.type
       end
       next unless FileMagic.is_dynamic_object? file_type
 

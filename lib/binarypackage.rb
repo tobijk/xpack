@@ -13,10 +13,19 @@ require 'filemagic'
 class BinaryPackage
   attr_reader :contents, :name, :version, :base_dir, :output_dir
 
-  FILE_TYPE  = 0
-  FILE_PERMS = 1
-  FILE_OWNER = 2
-  FILE_GROUP = 3
+  class EntryAttributes
+    attr_accessor :src, :type, :mode, :owner, :group, :conffile
+
+    alias :conffile? :conffile
+
+    def initialize(spec = {})
+      @type     = spec[:type]
+      @mode     = spec[:mode]
+      @owner    = spec[:owner] || 'root'
+      @group    = spec[:group] || 'root'
+      @conffile = spec[:conffile]
+    end
+  end
 
   def initialize(xml_config)
     case xml_config
@@ -56,7 +65,13 @@ class BinaryPackage
     @content_spec = {}
     bin_node.xpath('contents/*').each do |node|
       src = node['src'].strip
-      @content_spec[src] = [ node.name, node['mode'], node['owner'], node['group'] ]
+      @content_spec[src] = EntryAttributes.new(
+        :type     => node.name,
+        :mode     => node['mode'],
+        :owner    => node['owner'],
+        :group    => node['group'],
+        :conffile => node['conffile']
+      )
     end
 
     # maintainer scripts
@@ -108,17 +123,20 @@ class BinaryPackage
     @contents = @content_spec.clone
 
     # generate complete listing
-    @contents.each_pair do |src, attributes|
-      type_of_file = attributes[FILE_TYPE]
-      mode  = attributes[FILE_PERMS]
-      owner = attributes[FILE_OWNER]
-      group = attributes[FILE_GROUP]
+    @contents.each_pair do |src, attr|
+      type_of_file = attr.type
+      mode = attr.mode
+      owner = attr.owner
+      group = attr.group
+      conffile = attr.conffile?
+
       listing = []
+
       # due to expand_path we never have a trailing '/'
       real_path = File.expand_path(@base_dir + '/' + src)
       case type_of_file
         when 'dir'
-          attributes[FILE_TYPE] = 'directory'
+          attr.type = 'directory'
         when 'file'
           if real_path =~ /(\*|\?)/
             listing = Dir[real_path]
@@ -126,7 +144,7 @@ class BinaryPackage
             real_path.slice! /\/$/
             listing = Dir[real_path + '/**/*']
           else
-            attributes[FILE_TYPE] = FileMagic.file_type(real_path)
+            attr.type = FileMagic.file_type(real_path)
          end
       end
 
@@ -134,13 +152,20 @@ class BinaryPackage
         type_of_file = FileMagic.file_type(entry)
         entry.slice! /^#{Regexp.escape(@base_dir)}/
         unless @contents.has_key? entry
-          additional_contents[entry] = [ type_of_file, mode, owner, group ]
+          additional_contents[entry] = EntryAttributes.new(
+            :type => type_of_file,
+            :mode => mode,
+            :owner => owner,
+            :group => group,
+            :conffile => type_of_file.start_with?('directory') ?\
+              false : conffile
+          )
         end
       end
     end
 
     # delete globs
-    @contents.delete_if { |entry, attributes| entry =~ /(\*|\?)/ }
+    @contents.delete_if { |entry, attr| entry =~ /(\*|\?)/ }
 
     # merge new contents
     @contents.merge! additional_contents
@@ -162,13 +187,13 @@ class BinaryPackage
     end
 
     # strip unstripped objects
-    @contents.each do |file_path, attributes|
-      real_path = @base_dir + '/' + file_path
-      debug_path = @base_dir + '/usr/lib/debug/' + file_path
-      if FileMagic.unstripped? attributes[FILE_TYPE]
+    @contents.each do |src, attr|
+      real_path = @base_dir + '/' + src
+      debug_path = @base_dir + '/usr/lib/debug/' + src
+      if FileMagic.unstripped? attr.type
 
         # create directory, if necessary
-        dir_list = File.dirname(file_path)\
+        dir_list = File.dirname(src)\
           .split('/')\
           .delete_if { |s| s.empty? }
         dir_list.inject('') do |path, dir|
@@ -198,12 +223,12 @@ class BinaryPackage
   end
 
   def shlib_deps(shlib_cache)
-    @contents.each do |path, attributes|
-      type_of_file = attributes[BinaryPackage::FILE_TYPE]
+    @contents.each do |src, attr|
+      type_of_file = attr.type
       next unless FileMagic.is_dynamic_object? type_of_file
       arch_word_size = FileMagic.arch_word_size type_of_file
 
-      cmd = "objdump -p #{@base_dir + '/' + path}"
+      cmd = "objdump -p #{@base_dir + '/' + src}"
       Popen.popen2(cmd) do |stdin, stdeo|
 
         stdin.close
