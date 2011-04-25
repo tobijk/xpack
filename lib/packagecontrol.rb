@@ -89,7 +89,7 @@ class PackageControl
     @bin_pkgs = xml_doc.xpath('/control/package').collect do |node|
       pkg = case @parms[:format]
         when :deb
-          DebianPackage.new(node)
+          DebianPackage.new(node, :debug_pkgs => parms[:debug_pkgs])
       end
       pkg.base_dir = @defines['XPACK_INSTALL_DIR']
       pkg.output_dir = @parms[:outdir]

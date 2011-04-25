@@ -27,7 +27,9 @@ class BinaryPackage
     end
   end
 
-  def initialize(xml_config)
+  def initialize(xml_config, parms = {})
+    parms = { :debug_pkgs => true }.merge(parms)
+
     case xml_config
       when Nokogiri::XML::Element
         bin_node = xml_config
@@ -48,6 +50,9 @@ class BinaryPackage
     @source = bin_node['source']
     @is_arch_indep = \
       bin_node['architecture-independent'] == 'true' ? true : false
+
+    # whether to generate debug packages
+    @make_debug_pkgs = parms[:debug_pkgs]
 
     @requires  = {}
     @provides  = {}

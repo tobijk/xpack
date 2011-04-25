@@ -16,7 +16,7 @@ class DebianPackage < BinaryPackage
 
   def do_pack
     pack_package()
-    pack_package("debug")
+    pack_package("debug") if @make_debug_pkgs
   end
 
   def pack_package(mode = "normal")

@@ -34,6 +34,7 @@ def print_usage()
   puts "                                                                              "
   puts " --list-deps        list all build dependencies                               "
   puts " --ignore-deps      ignore missing build dependencies                         "
+  puts " --no-debug-pkgs    don't generate debug packages                             "
   puts "                                                                              "
   puts " -f --format=<fmt>  package format to build, currently supported formats are: "
   puts "                    'deb' - Debian package format                             "
@@ -54,13 +55,15 @@ def parse_cmd_line()
     :action => :default,
     :outdir => nil,
     :format => :deb,
-    :ignore_deps => false
+    :ignore_deps => false,
+    :debug_pkgs => true
   }
 
   opts = GetoptLong.new(
     [ '--help', '-h',         GetoptLong::NO_ARGUMENT ],
     [ '--list-deps',          GetoptLong::NO_ARGUMENT ],
     [ '--ignore-deps',        GetoptLong::NO_ARGUMENT ],
+    [ '--no-debug-pkgs',      GetoptLong::NO_ARGUMENT ],
     [ '--format', '-f',       GetoptLong::REQUIRED_ARGUMENT ],
     [ '--outdir', '-o',       GetoptLong::REQUIRED_ARGUMENT ],
     [ '--prepare-only', '-p', GetoptLong::NO_ARGUMENT ],
@@ -81,6 +84,8 @@ def parse_cmd_line()
           config[:action] = :list_deps
         when '--ignore-deps'
           config[:ignore_deps] = true
+        when '--no-debug-pkgs'
+          config[:debug_pkgs] = false
         when '--format'
           if not [:deb].include? arg.intern
             raise GetoptLong::Error, "invalid binary package format '#{arg}'"
@@ -131,6 +136,7 @@ begin #main()
     $stderr.write "xpack: caught interrupt, exiting\n"
     exit XPACK_ERR_INTERRUPT
   rescue Exception => e
+    raise
     $stderr.write "xpack: #{e.message}\n"
     exit XPACK_ERR_RUNTIME
   end
