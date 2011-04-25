@@ -20,7 +20,8 @@ class PackageControl
     @parms = {
       :outdir => nil,
       :ignore_deps => false,
-      :format => :deb
+      :format => :deb,
+      :debug_pkgs => true
     }.merge(parms)
 
     xml_doc = nil
@@ -89,7 +90,7 @@ class PackageControl
     @bin_pkgs = xml_doc.xpath('/control/package').collect do |node|
       pkg = case @parms[:format]
         when :deb
-          DebianPackage.new(node, :debug_pkgs => parms[:debug_pkgs])
+          DebianPackage.new(node, :debug_pkgs => @parms[:debug_pkgs])
       end
       pkg.base_dir = @defines['XPACK_INSTALL_DIR']
       pkg.output_dir = @parms[:outdir]
