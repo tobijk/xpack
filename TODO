@@ -1,7 +1,6 @@
-* generate debug packages
 * patches
+* relaxng schema
 * list/check build depends (dpkg, opkg)
 * shlibcache works with opkg
-* relaxng schema
 * filter elements by arch
 * lots more tests
