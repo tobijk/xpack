@@ -7,11 +7,12 @@ require 'test/unit'
 
 class TS_ReadArchive < Test::Unit::TestCase
 
-  PACKAGE_DIR='data/hello-world-pkg'
-  SPEC_FILE="#{PACKAGE_DIR}/pack/package.xml"
-  PACKAGE_FILE="../hello_0.1.0-1_i386.deb"
-  XPACK_SOURCE_DIR="#{PACKAGE_DIR}/hello-src"
-  XPACK_INSTALL_DIR="#{PACKAGE_DIR}/tmp-install"
+  PACKAGE_DIR = 'data/hello-world-pkg'
+  SPEC_FILE = "#{PACKAGE_DIR}/pack/package.xml"
+  PACKAGE_FILE = "../hello_0.1.0-1_i386.deb"
+  DEBUG_PACKAGE_FILE = "../hello-dbg_0.1.0-1_i386.deb"
+  XPACK_SOURCE_DIR = "#{PACKAGE_DIR}/hello-src"
+  XPACK_INSTALL_DIR = "#{PACKAGE_DIR}/tmp-install"
 
   CONTROL=<<EOF
 Package: hello
@@ -27,6 +28,7 @@ EOF
 
   def teardown
     File.unlink PACKAGE_FILE if File.exist? PACKAGE_FILE
+    File.unlink DEBUG_PACKAGE_FILE if File.exist? DEBUG_PACKAGE_FILE
   end
 
   def test_build_basic_package
@@ -36,11 +38,14 @@ EOF
     # test prepare target executed?
     assert File.exist?("#{XPACK_SOURCE_DIR}/prepare.stamp")
 
-    # make sure building went ok
-    assert File.exist?(PACKAGE_FILE)
+    # install went ok
     assert File.exist?("#{XPACK_SOURCE_DIR}/hello_world.c")
     assert File.exist?("#{XPACK_INSTALL_DIR}/usr/bin/hello")
     assert File.exist?("#{XPACK_INSTALL_DIR}/usr/lib/debug/usr/bin/hello")
+
+    # make sure building went ok
+    assert File.exist?(PACKAGE_FILE)
+    assert File.exist?(DEBUG_PACKAGE_FILE)
 
     # check that archive has proper format and contents
     Archive.read_open_filename(PACKAGE_FILE) do |ar|

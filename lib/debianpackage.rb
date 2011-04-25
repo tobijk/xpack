@@ -15,18 +15,69 @@ require 'libarchive_rs'
 class DebianPackage < BinaryPackage
 
   def do_pack
-    package_file_name = @name + '_' + @version.sub(/^\d+:/, '') + \
+    pack_package()
+    pack_package("debug")
+  end
+
+  def pack_package(mode = "normal")
+    debug_suffix = mode == "debug" ? '-dbg_' : '_'
+    package_file_name = @name + debug_suffix + @version.sub(/^\d+:/, '') + \
       '_' + debian_architecture + '.deb'
     package_file_name = File.expand_path(@output_dir + '/' + package_file_name)
 
-    Dir.mktmpdir do |tmpdir|
-      write_data_tar_gz(tmpdir + '/data.tar.gz')
-      write_control_tar_gz(tmpdir + '/control.tar.gz')
-      File.open(tmpdir + '/debian-binary', 'w+') do |f|
-        f.write(debian_binary)
-      end
+    contents = {}
+    meta_data = ""
 
-      ar = Archive.write_open_filename(package_file_name,
+    # find debug symbols
+    if mode == "debug"
+      @contents.each do |src, attr|
+        debug_file = File.expand_path('/usr/lib/debug/' + src)
+        next unless File.file? @base_dir + '/' + debug_file
+
+        # add entry for debug data
+        contents[debug_file] =\
+          BinaryPackage::EntryAttributes.new(
+            :type => attr.type,
+            :mode => 0644,
+            :owner => 'root',
+            :group => 'root',
+            :conffile => false
+          )
+
+        # we need to include the directories
+        dir_list = File.dirname(src).gsub(/^\//, '').split(/\//)
+        dir_list.inject('/usr/lib/debug') do |path, dir|
+          path = path + '/' + dir
+          unless contents[path]
+            contents[path] = BinaryPackage::EntryAttributes.new(
+              :type => 'directory',
+              :mode => 0755,
+              :owner => 'root',
+              :group => 'root',
+              :conffile => false
+            )
+          end
+          path
+        end
+      end
+      return if contents.empty? # don't assemble unless debug data available
+      meta_data = meta_data('debug')
+    else
+      contents = @contents
+      meta_data = meta_data()
+    end
+
+    assemble_package(meta_data, contents, package_file_name)
+  end
+
+  def assemble_package(meta_data, contents, outfile)
+    Dir.mktmpdir do |tmpdir|
+
+      write_data_tar_gz(contents, tmpdir + '/data.tar.gz')
+      write_control_tar_gz(meta_data, contents, tmpdir + '/control.tar.gz')
+      File.open(tmpdir + '/debian-binary', 'w+') { |f| f.write(debian_binary) }
+
+      ar = Archive.write_open_filename(outfile,
         Archive::COMPRESSION_NONE, Archive::FORMAT_AR_SVR4) do |ar|
 
         [ 'debian-binary', 'control.tar.gz',
@@ -41,29 +92,28 @@ class DebianPackage < BinaryPackage
             ar_entry.uname = 'root'
             ar_entry.gname = 'root'
             ar.write_header(ar_entry)
-            File.open(real_path) { |fp| ar.write_data { fp.read(1024) } }
+            File.open(real_path) { |fp| ar.write_data { fp.read(4096) } }
           end
         end
-
       end
+
     end
   end
 
-  def write_control_tar_gz(path)
-
-    ar = Archive.write_open_filename(path, Archive::COMPRESSION_GZIP,
+  def write_control_tar_gz(meta_data, pkg_contents, outfile)
+    ar = Archive.write_open_filename(outfile, Archive::COMPRESSION_GZIP,
       Archive::FORMAT_TAR_USTAR) do |ar|
 
-      contents = [
+      ctrl_contents = [
         [ 'control', meta_data, 0644 ],
-        [ 'md5sums', md5sums, 0644 ],
+        [ 'md5sums', md5sums(pkg_contents), 0644 ],
       ]
-      @maintainer_scripts.each_pair { |k, v| contents << [ k, v, 0754 ] }
+      @maintainer_scripts.each_pair { |k, v| ctrl_contents << [ k, v, 0754 ] }
 
-      conffiles = conffiles()
-      contents << [ 'conffiles', conffiles, 0644 ] unless conffiles.empty?
+      conffiles = conffiles(pkg_contents)
+      ctrl_contents << [ 'conffiles', conffiles, 0644 ] unless conffiles.empty?
 
-      contents.each do |entry_name, entry_content, mode|
+      ctrl_contents.each do |entry_name, entry_content, mode|
         ar.new_entry do |ar_entry|
           ar_entry.mode = Archive::ENTRY_FILE | mode
           ar_entry.pathname = entry_name
@@ -82,12 +132,11 @@ class DebianPackage < BinaryPackage
     end
   end
 
-  def write_data_tar_gz(path)
-
-    ar = Archive.write_open_filename(path, Archive::COMPRESSION_GZIP,
+  def write_data_tar_gz(pkg_contents, outfile)
+    ar = Archive.write_open_filename(outfile, Archive::COMPRESSION_GZIP,
       Archive::FORMAT_TAR_USTAR) do |ar|
 
-      @contents.each do |src, attr|
+      pkg_contents.each do |src, attr|
         file_path  = '.' + src
         file_type  = attr.type
         file_mode  = attr.mode
@@ -127,9 +176,9 @@ class DebianPackage < BinaryPackage
     return "2.0\n"
   end
 
-  def meta_data
+  def meta_data(mode = 'normal')
     meta = String.new
-    meta += "Package: #{@name}\n"
+    meta += mode == 'normal' ? "Package: #{@name}\n" : "Package: #{@name}-dbg\n"
     meta += "Version: #{@version}\n"
     meta += "Source: #{@source}\n"
     meta += "Maintainer: #{@maintainer}\n"
@@ -143,34 +192,43 @@ class DebianPackage < BinaryPackage
       'replaces'  => 'Replaces: '
     }
 
-    [ 'requires', 'provides', 'conflicts', 'replaces' ].each do |dep_type|
-      if not eval "@#{dep_type}.empty?"
-        pkg_list = eval "@#{dep_type}.sort { |a, b| a[0] <=> b[0] }"
+    if mode == 'normal'
+      [ 'requires', 'provides', 'conflicts', 'replaces' ].each do |dep_type|
+        if not eval "@#{dep_type}.empty?"
+          pkg_list = eval "@#{dep_type}.sort { |a, b| a[0] <=> b[0] }"
 
-        meta += dep_type_2_str[dep_type] + \
-        pkg_list.collect do |pkg,version|
-          version = "= #{@version}" if version == '=='
-          if version
-            "#{pkg} (#{version})"
-          else
-            pkg
-          end
-        end\
-        .join(', ')
-        meta += "\n"
+          meta += dep_type_2_str[dep_type] + \
+          pkg_list.collect do |pkg,version|
+            version = "= #{@version}" if version == '=='
+            if version
+              "#{pkg} (#{version})"
+            else
+              pkg
+            end
+          end\
+          .join(', ')
+          meta += "\n"
+        end
       end
+    else
+      meta += "Depends: #{@name} (= #{@version})\n"
     end
 
-    meta += "Description: #{@description.summary}\n"
-    full_description = @description.full_description
-    meta += "#{full_description}\n" unless full_description.empty?
+    if mode == 'normal'
+      meta += "Description: #{@description.summary}\n"
+      full_description = @description.full_description
+      meta += "#{full_description}\n" unless full_description.empty?
+    else
+      meta += "Description: debug symbols for binaries in package '#{@name}'\n"
+    end
+
     return meta
   end
 
-  def md5sums
+  def md5sums(contents)
     result = ""
 
-    @contents.each do |src, attr|
+    contents.each do |src, attr|
       real_path = @base_dir + '/' + src
       next unless File.file? real_path
       begin
@@ -190,11 +248,11 @@ class DebianPackage < BinaryPackage
     return result
   end
 
-  def conffiles
+  def conffiles(contents)
     result = ""
 
-    @contents.each do |src, attr|
-      next if attr.conffile == false
+    contents.each do |src, attr|
+      next if attr.type == "directory" || attr.conffile == false
 
       real_path = @base_dir + '/' + src
       next unless File.file? real_path
