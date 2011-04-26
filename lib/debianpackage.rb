@@ -61,6 +61,7 @@ class DebianPackage < BinaryPackage
         end
       end
       return if contents.empty? # don't assemble unless debug data available
+      contents = contents.sort
       meta_data = meta_data('debug')
     else
       contents = @contents
