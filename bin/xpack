@@ -136,7 +136,6 @@ begin #main()
     $stderr.write "xpack: caught interrupt, exiting\n"
     exit XPACK_ERR_INTERRUPT
   rescue Exception => e
-    raise
     $stderr.write "xpack: #{e.message}\n"
     exit XPACK_ERR_RUNTIME
   end
