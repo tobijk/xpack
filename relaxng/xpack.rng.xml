@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ - This file is part of the XPack Package Generator
+ - Copyright (C) 2010-2011, Tobias Koch <tobias@tobijk.de>
+ -
+ - XPack is licensed under the GNU General Public License, version 2. A copy of
+ - the license text can be found in the file LICENSE included in the source
+ - distribution.
+-->
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+
+    <start>
+        <element name="control">
+            <optional>
+                <ref name="defines"/>
+            </optional>
+
+            <ref name="source"/>
+
+            <oneOrMore>
+                <ref name="package"/>
+            </oneOrMore>
+
+            <ref name="changelog"/>
+        </element>
+    </start>
+
+    <!-- DEFINES -->
+    <define name="defines">
+        <element name="defines">
+            <zeroOrMore>
+                <element name="def">
+                    <attribute name="name"/>
+                    <attribute name="value"/>
+                </element>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <!-- SOURCE -->
+    <define name="source">
+        <element name="source">
+            <optional>
+                <attribute name="name"/>
+            </optional>
+            <optional>
+                <attribute name="architecture-independent">
+                    <choice>
+                        <value>true</value>
+                        <value>false</value>
+                    </choice>
+                </attribute>
+            </optional>
+
+            <!-- DESCRIPTION -->
+            <ref name="description"/>
+
+            <interleave>
+                <!-- REQUIRES -->
+                <optional>
+                    <element name="requires">
+                        <zeroOrMore>
+                            <ref name="dependency"/>
+                        </zeroOrMore>
+                    </element>
+                </optional>
+
+                <!-- SOURCES -->
+                <optional>
+                    <element name="sources">
+                        <zeroOrMore>
+                            <element name="file">
+                                <attribute name="src"/>
+                            </element>
+                        </zeroOrMore>
+                    </element>
+                </optional>
+
+                <!-- PATCHES -->
+                <optional>
+                    <element name="patches">
+                        <zeroOrMore>
+                            <element name="patchset">
+                                <optional>
+                                    <attribute name="arch"/>
+                                </optional>
+
+                                <zeroOrMore>
+                                    <element name="file">
+                                        <attribute name="src"/>
+                                    </element>
+                                </zeroOrMore>
+                            </element>
+                        </zeroOrMore>
+                    </element>
+                </optional>
+
+                <!-- RULES -->
+                <ref name="rules"/>
+            </interleave>
+        </element>
+    </define>
+
+    <!-- DESCRIPTION -->
+    <define name="description">
+        <element name="description">
+            <element name="summary">
+                <text/>
+            </element>
+            <interleave>
+                <zeroOrMore>
+                    <element name="p">
+                        <ref name="text-inline"/>
+                    </element>
+                </zeroOrMore>
+                <zeroOrMore>
+                    <element name="ul">
+                        <oneOrMore>
+                            <element name="li">
+                                <ref name="text-inline"/>
+                            </element>
+                        </oneOrMore>
+                    </element>
+                </zeroOrMore>
+            </interleave>
+        </element>
+    </define>
+
+    <!-- DEPENDENCY -->
+    <define name="dependency">
+        <element name="package">
+            <attribute name="name"/>
+            <optional>
+                <attribute name="version"/>
+            </optional>
+        </element>
+    </define>
+
+    <!-- RULES -->
+    <define name="rules">
+        <element name="rules">
+            <interleave>
+                <optional>
+                    <element name="prepare">
+                        <text/>
+                    </element>
+                </optional>
+                <optional>
+                    <element name="build">
+                        <text/>
+                    </element>
+                </optional>
+                <optional>
+                    <element name="install">
+                        <text/>
+                    </element>
+                </optional>
+                <optional>
+                    <element name="clean">
+                        <text/>
+                    </element>
+                </optional>
+            </interleave>
+        </element>
+    </define>
+
+    <!-- PACKAGE -->
+    <define name="package">
+        <element name="package">
+            <attribute name="name"/>
+            <optional>
+                <attribute name="section"/>
+            </optional>
+
+            <!-- DESCRIPTION -->
+            <ref name="description"/>
+
+            <interleave>
+                <!-- REQUIRES -->
+                <optional>
+                    <element name="requires">
+                        <zeroOrMore>
+                            <ref name="dependency"/>
+                        </zeroOrMore>
+                    </element>
+                </optional>
+
+                <!-- PROVIDES -->
+                <optional>
+                    <element name="provides">
+                        <zeroOrMore>
+                            <ref name="dependency"/>
+                        </zeroOrMore>
+                    </element>
+                </optional>
+
+                <!-- CONFLICTS -->
+                <optional>
+                    <element name="conflicts">
+                        <zeroOrMore>
+                            <ref name="dependency"/>
+                        </zeroOrMore>
+                    </element>
+                </optional>
+
+                <!-- REPLACES -->
+                <optional>
+                    <element name="replaces">
+                        <zeroOrMore>
+                            <ref name="dependency"/>
+                        </zeroOrMore>
+                    </element>
+                </optional>
+
+                <!-- CONTENTS -->
+                <element name="contents">
+                    <interleave>
+                        <zeroOrMore>
+                            <element name="dir">
+                                <attribute name="src"/>
+                                <optional>
+                                    <attribute name="owner"/>
+                                </optional>
+                                <optional>
+                                    <attribute name="group"/>
+                                </optional>
+                                <optional>
+                                    <attribute name="mode"/>
+                                </optional>
+                            </element>
+                        </zeroOrMore>
+
+                        <zeroOrMore>
+                            <element name="file">
+                                <attribute name="src"/>
+                                <optional>
+                                    <attribute name="owner"/>
+                                </optional>
+                                <optional>
+                                    <attribute name="group"/>
+                                </optional>
+                                <optional>
+                                    <attribute name="mode"/>
+                                </optional>
+                                <optional>
+                                    <attribute name="conffile"/>
+                                </optional>
+                            </element>
+                        </zeroOrMore>
+                    </interleave>
+                </element>
+
+                <!-- MAINTAINER SCRIPTS -->
+                <optional>
+                    <element name="maintainer-scripts">
+                        <interleave>
+                            <optional>
+                                <element name="preinst">
+                                    <text/>
+                                </element>
+                            </optional>
+                            <optional>
+                                <element name="postinst">
+                                    <text/>
+                                </element>
+                            </optional>
+                            <optional>
+                                <element name="prerm">
+                                    <text/>
+                                </element>
+                            </optional>
+                            <optional>
+                                <element name="postrm">
+                                    <text/>
+                                </element>
+                            </optional>
+                        </interleave>
+                    </element>
+                </optional>
+
+            </interleave>
+        </element>
+    </define>
+
+    <!-- CHANGELOG -->
+    <define name="changelog">
+        <element name="changelog">
+            <oneOrMore>
+                <element name="release">
+                    <optional>
+                        <attribute name="epoch"/>
+                    </optional>
+                    <attribute name="version"/>
+                    <attribute name="revision"/>
+                    <attribute name="maintainer"/>
+                    <attribute name="email"/>
+                    <attribute name="date"/>
+                    <oneOrMore>
+                        <element name="changeset">
+                            <oneOrMore>
+                                <element name="li">
+                                    <ref name="text-inline"/>
+                                </element>
+                            </oneOrMore>
+                        </element>
+                    </oneOrMore>
+                </element>
+            </oneOrMore>
+        </element>
+    </define>
+
+    <!-- TEXT AND INLINE ELEMENTS -->
+    <define name="text-inline">
+        <interleave>
+            <text/>
+            <optional>
+                <element name="em">
+                    <text/>
+                </element>
+            </optional>
+        </interleave>
+    </define>
+
+</grammar>
