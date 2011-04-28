@@ -25,8 +25,9 @@ module Specfile
         xml_doc = Nokogiri::XML(fp) do |config|
           config.strict.noent.nocdata.dtdload.xinclude
         end
-      rescue Exception => e
-        raise RuntimeError, "error while loading spec file: #{e.message.chomp}"
+      rescue Nokogiri::XML::SyntaxError => e
+        msg = "->#{" Line #{e.line}:" if e.line != 0} #{e.message}"
+        raise RuntimeError, "broken spec file: parse errors\n#{msg}"
       end
     end
 
@@ -40,8 +41,11 @@ module Specfile
     errors = schema.validate(xml_doc)
 
     unless errors.empty?
-      errors = errors.collect{|e| "-> line #{e.line}: #{e.message}"}.join("\n")
-      raise ValidationError, "invalid spec file: syntax errors\n#{errors.chomp}"
+      errors = errors.collect do |e|
+        "->#{" Line #{e.line}:" if e.line != 0} #{e.message}"
+      end
+      errors = errors.join("\n").chomp
+      raise ValidationError, "invalid spec file: syntax errors\n#{errors}"
     end
   end
 
