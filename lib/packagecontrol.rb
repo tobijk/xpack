@@ -13,6 +13,7 @@ require 'sourcepackage'
 require 'debianpackage'
 require 'fileutils'
 require 'shlibcache'
+require 'specfile'
 
 class PackageControl
 
@@ -24,16 +25,7 @@ class PackageControl
       :debug_pkgs => true
     }.merge(parms)
 
-    xml_doc = nil
-    File.open(xml_spec_file_name, 'r') do |fp|
-      begin
-        xml_doc = Nokogiri::XML(fp) do |config|
-          config.strict.noent.nocdata.dtdload.xinclude
-        end
-      rescue Exception => e
-        raise RuntimeError, "Error while loading spec file: #{e.message.chomp}"
-      end
-    end
+    xml_doc = Specfile.load(xml_spec_file_name)
 
     @info = Hash.new
 
