@@ -1,5 +1,5 @@
 * patches
-* relaxng schema
+* allow alternatives for dependencies
 * list/check build depends (dpkg, opkg)
 * shlibcache works with opkg
 * filter elements by arch
