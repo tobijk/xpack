@@ -8,6 +8,7 @@
 #
 
 require 'nokogiri'
+require 'time'
 
 module Specfile
 
@@ -17,36 +18,78 @@ module Specfile
   class ValidationError < RuntimeError
   end
 
-  def self.load(xml_spec_file_name)
-    xml_doc = nil
+  class << self
 
-    File.open(xml_spec_file_name, 'r') do |fp|
-      begin
-        xml_doc = Nokogiri::XML(fp) do |config|
-          config.strict.noent.nocdata.dtdload.xinclude
+    def load(xml_spec_file_name)
+      xml_doc = nil
+
+      File.open(xml_spec_file_name, 'r') do |fp|
+        begin
+          xml_doc = Nokogiri::XML(fp) do |config|
+            config.strict.noent.nocdata.dtdload.xinclude
+          end
+        rescue Nokogiri::XML::SyntaxError => e
+          msg = "->#{" Line #{e.line}:" if e.line != 0} #{e.message}"
+          raise RuntimeError, "broken spec file: parse errors\n#{msg}"
         end
-      rescue Nokogiri::XML::SyntaxError => e
-        msg = "->#{" Line #{e.line}:" if e.line != 0} #{e.message}"
-        raise RuntimeError, "broken spec file: parse errors\n#{msg}"
+      end
+
+      validate_structure(xml_doc)
+      validate_format(xml_doc)
+
+      return xml_doc
+    end
+
+    def validate_structure(xml_doc)
+      schema = Nokogiri::XML::RelaxNG.new(File.open(RELAXNG_SCHEMA_FILE))
+
+      errors = schema.validate(xml_doc)
+
+      unless errors.empty?
+        errors = errors.collect do |e|
+          "->#{" Line #{e.line}:" if e.line != 0} #{e.message}"
+        end
+        errors = errors.join("\n").chomp
+        raise ValidationError, "invalid spec file: syntax errors\n#{errors}"
       end
     end
 
-    validate_structure(xml_doc)
-    return xml_doc
-  end
+    def validate_format(xml_doc)
+      errors = []
 
-  def self.validate_structure(xml_doc)
-    schema = Nokogiri::XML::RelaxNG.new(File.open(RELAXNG_SCHEMA_FILE))
+      err_msg = Proc.new { |node, regex|
+        msg  = "-> Line #{node.line}: #{node.parent.name}/@#{node.name} "
+        msg += "\"#{node.content}\", doesn't adhere to specification\n"
+        msg += "-> #{regex.inspect}"
+      }
 
-    errors = schema.validate(xml_doc)
+      specification = [
+        [ "//*[name() = 'source' or name() = 'package']/@name", /^[a-zA-Z0-9]*(?:-[a-zA-Z0-9]*)*$/ ],
+        [ "//package/@version", /(?:^(?:<<|<=|=|>=|>>)\s*(?:(\d+):)?([-.+~a-zA-Z0-9]+?)(?:-([.~+a-zA-Z0-9]+)){0,1}$)|(?:^==$)/ ],
+        [ "//changelog/release/@epoch", /^\d+$/ ],
+        [ "//changelog/release/@version", /^([-.+~a-zA-Z0-9]+?)(?:-([.~+a-zA-Z0-9]+)){0,1}$/ ],
+        [ "//changelog/release/@revision", /^[.~+a-zA-Z0-9]+$/ ],
+        [ "//changelog/release/@email", /^[-_%.a-zA-Z0-9]+@[-.a-z0-9]+\.[a-z]{2,4}$/ ],
+        [ "//changelog/release/@date", /^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+(?:((?:-|\+)\d{4})|(?:GMT(?:(?:-|\+)\d{1,2})))$/ ]
+      ]
 
-    unless errors.empty?
-      errors = errors.collect do |e|
-        "->#{" Line #{e.line}:" if e.line != 0} #{e.message}"
+      specification.each do |xpath, regex|
+        xml_doc.xpath(xpath).each do |node|
+          errors << err_msg.call(node, regex) unless node.content =~ regex
+        end
       end
-      errors = errors.join("\n").chomp
-      raise ValidationError, "invalid spec file: syntax errors\n#{errors}"
-    end
-  end
 
+      begin
+        Time.parse(xml_doc.at_xpath("//changelog/release/@date").content)
+      rescue ArgumentError => e
+        errors << "-> //changelog/release/@date: #{e.message}"
+      end
+
+      unless errors.empty?
+        errors = errors.join("\n").chomp
+        raise ValidationError, "invalid spec file:\n#{errors}"
+      end
+    end
+
+  end
 end
