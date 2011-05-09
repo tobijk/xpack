@@ -40,8 +40,7 @@ class SourcePackage
     # patches to the sources
     @patches = []
     source_node.xpath('patches/patchset').each do |patch_set|
-      next if not [ 'any' ].include? patch_set['arch']
-      @patches << patch_set.xpath('file').collect {|file| file['src']}
+      @patches += patch_set.xpath('file').collect {|file| file['src']}
     end
 
     # original package sources
@@ -106,7 +105,18 @@ class SourcePackage
   end
 
   def patch(source_dir = '.')
-    puts "patch"
+    @patches.each do |p|
+      patch_file = File.expand_path(@base_dir + '/' + p)\
+        unless p.start_with? '/'
+
+      cmd = "patch -f -p1 -d #{source_dir} -i #{patch_file}"
+      exit_code = Popen.popen2(cmd) do |stdin, stdeo|
+        stdin.close
+        stdeo.each_line { |line| puts line }
+      end
+
+      raise RuntimeError, "patch failed to apply" unless exit_code == 0
+    end
   end
 
   ['prepare', 'build', 'install', 'clean'].each do |name|
