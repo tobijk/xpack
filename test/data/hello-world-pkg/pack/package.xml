@@ -19,6 +19,12 @@
             <file src="src.tar.gz"/>
         </sources>
 
+        <patches>
+            <patchset>
+                <file src="patches/mars-to-world.diff"/>
+            </patchset>
+        </patches>
+
         <!-- build rules -->
         &rules;
     </source>

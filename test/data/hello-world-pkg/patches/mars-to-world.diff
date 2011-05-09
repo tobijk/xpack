@@ -1,0 +1,9 @@
+--- a/hello_world.c	2011-05-10 00:09:43.000000000 +0300
++++ b/hello_world.c	2011-05-10 00:10:03.000000000 +0300
+@@ -2,5 +2,5 @@
+ #include <stdlib.h>
+ 
+ int main(void) {
+-    printf("Hello Mars!\n");
++    printf("Hello World!\n");
+ }

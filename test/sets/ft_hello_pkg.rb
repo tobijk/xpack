@@ -26,6 +26,15 @@ Description: Hello World! in C
  This package contains the Hello World! program written in C.\\s*
 EOF
 
+  HELLO_WORLD_PROG=<<EOF
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+    printf("Hello World!\\n");
+}
+EOF
+
   def teardown
     File.unlink PACKAGE_FILE if File.exist? PACKAGE_FILE
     File.unlink DEBUG_PACKAGE_FILE if File.exist? DEBUG_PACKAGE_FILE
@@ -37,6 +46,10 @@ EOF
 
     # test prepare target executed?
     assert File.exist?("#{XPACK_SOURCE_DIR}/prepare.stamp")
+
+    # patch applied?
+    assert_equal HELLO_WORLD_PROG, \
+      File.read(XPACK_SOURCE_DIR + '/hello_world.c')
 
     # install went ok
     assert File.exist?("#{XPACK_SOURCE_DIR}/hello_world.c")
