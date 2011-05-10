@@ -38,12 +38,6 @@
             <file src="eglibc-2.12.1.tar.gz"/>
         </sources>
 
-        <patches>
-            <patchset arch="any">
-                <file src="patches/eglibc-pre-config.diff"/>
-            </patchset>
-        </patches>
- 
         <!-- build rules -->
         &rules;
    </source>
