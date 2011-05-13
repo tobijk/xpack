@@ -9,8 +9,9 @@
 
 require 'popen'
 require 'filemagic'
+require 'basepackage'
 
-class BinaryPackage
+class BinaryPackage < BasePackage
   attr_reader :contents, :name, :version, :base_dir, :output_dir
 
   class EntryAttributes
@@ -54,16 +55,11 @@ class BinaryPackage
     # whether to generate debug packages
     @make_debug_pkgs = parms[:debug_pkgs]
 
-    @requires  = {}
-    @provides  = {}
-    @conflicts = {}
-    @replaces  = {}
-
     # binary dependencies
+    @relations = {}
     [ 'requires', 'provides', 'conflicts', 'replaces' ].each do |dep_type|
-      bin_node.xpath("#{dep_type}/package").each do |pkg_node|
-        eval "@#{dep_type}[pkg_node['name']] = pkg_node['version']"
-      end
+      dep_node = bin_node.at_xpath("#{dep_type}")
+      @relations[dep_type] = BasePackage::DependencySpecification.from_xml(dep_node)
     end
 
     # contents specification
@@ -244,10 +240,10 @@ class BinaryPackage
           shlib_cache[lib_name].each do |shared_obj|
             if shared_obj.arch_word_size == arch_word_size
               pkg, version = shared_obj.package_name_and_version
-              # don't overwrite existing entries and
-              # don't add the package itself
-              if @requires[pkg].nil? && pkg != @name
-                @requires[pkg] = ">= #{version}"
+              # don't overwrite existing entries and don't add pkg itself
+              if @relations['requires'][pkg].nil? && pkg != @name
+                @relations['requires'][pkg] =\
+                  BasePackage::Dependency.new(pkg, ">= #{version}")
               end
             end
           end 

@@ -195,21 +195,24 @@ class DebianPackage < BinaryPackage
 
     if mode == 'normal'
       [ 'requires', 'provides', 'conflicts', 'replaces' ].each do |dep_type|
-        if not eval "@#{dep_type}.empty?"
-          pkg_list = eval "@#{dep_type}.sort { |a, b| a[0] <=> b[0] }"
+        next if (dep_spec = @relations[dep_type]).empty?
 
-          meta += dep_type_2_str[dep_type] + \
-          pkg_list.collect do |pkg,version|
-            version = "= #{@version}" if version == '=='
-            if version
-              "#{pkg} (#{version})"
-            else
-              pkg
+        meta += dep_type_2_str[dep_type]
+        meta +=\
+        dep_spec.collect do |choices|
+          choices.collect do |alt|
+            case alt.version
+              when nil
+                "#{alt.name}"
+              when '=='
+                "#{alt.name} (= #{@version})"
+              else
+                "#{alt.name} (#{alt.version})"
             end
-          end\
-          .join(', ')
-          meta += "\n"
-        end
+          end.join(' | ')
+        end.join(', ')
+
+        meta += "\n"
       end
     else
       meta += "Depends: #{@name} (= #{@version})\n"

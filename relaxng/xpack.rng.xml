@@ -59,9 +59,18 @@
                 <!-- REQUIRES -->
                 <optional>
                     <element name="requires">
-                        <zeroOrMore>
-                            <ref name="dependency"/>
-                        </zeroOrMore>
+                        <interleave>
+                            <zeroOrMore>
+                                <ref name="dependency"/>
+                            </zeroOrMore>
+                            <zeroOrMore>
+                                <element name="choice">
+                                    <oneOrMore>
+                                        <ref name="dependency"/>
+                                    </oneOrMore>
+                                </element>
+                            </zeroOrMore>
+                        </interleave>
                     </element>
                 </optional>
 
@@ -179,9 +188,18 @@
                 <!-- REQUIRES -->
                 <optional>
                     <element name="requires">
-                        <zeroOrMore>
-                            <ref name="dependency"/>
-                        </zeroOrMore>
+                        <interleave>
+                            <zeroOrMore>
+                                <ref name="dependency"/>
+                            </zeroOrMore>
+                            <zeroOrMore>
+                                <element name="choice">
+                                    <oneOrMore>
+                                        <ref name="dependency"/>
+                                    </oneOrMore>
+                                </element>
+                            </zeroOrMore>
+                        </interleave>
                     </element>
                 </optional>
 

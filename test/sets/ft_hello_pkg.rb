@@ -21,7 +21,7 @@ Source: hello-world
 Maintainer: Tobias Koch <tobias.koch@gmail.com>
 Section: misc
 Architecture: .*
-Depends: libc6 \\(>= .*\\)
+Depends: apt | aptitude, libc6 \\(>= .*\\)
 Description: Hello World! in C
  This package contains the Hello World! program written in C.\\s*
 EOF

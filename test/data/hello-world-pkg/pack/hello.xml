@@ -2,6 +2,14 @@
 <package name="hello" section="misc">
     &description;
 
+    <requires>
+        <package name="base-files"/>
+        <choice>
+            <package name="apt"/>
+            <package name="aptitude"/>
+        </choice>
+    </requires>
+
     <contents>
         <file src="/usr/bin/hello"/>
     </contents>

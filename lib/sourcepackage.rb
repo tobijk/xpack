@@ -12,8 +12,9 @@ require 'nokogiri'
 require 'libarchive_rs'
 require 'popen'
 require 'packagedescription'
+require 'basepackage.rb'
 
-class SourcePackage
+class SourcePackage < BasePackage
   attr_accessor :base_dir
 
   def initialize(xml_config)
@@ -33,9 +34,10 @@ class SourcePackage
     @description = PackageDescription.new(source_node.at_xpath('description'))
 
     # build dependencies
-    @requires = source_node.xpath('requires/package').collect do |pkg_node|
-      [ pkg_node['name'], pkg_node['version'] ]
-    end
+    @relations = {}
+    dep_node = source_node.at_xpath('requires')
+    @relations['requires'] =\
+      BasePackage::DependencySpecification.from_xml(dep_node)
 
     # patches to the sources
     @patches = []
