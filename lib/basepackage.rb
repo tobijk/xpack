@@ -86,4 +86,23 @@ class BasePackage
 
   end
 
+  def dependencies_as_string(dep_type)
+    spec = @relations[dep_type]
+
+    return "" if spec.nil? || spec.empty?
+
+    spec.collect do |choices|
+      choices.collect do |alt|
+        case alt.version
+          when nil
+            "#{alt.name}"
+          when '=='
+            "#{alt.name} (= #{@version})"
+          else
+            "#{alt.name} (#{alt.version})"
+        end
+      end.join(' | ')
+    end.join(', ')
+  end
+
 end
