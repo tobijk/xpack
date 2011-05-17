@@ -10,48 +10,9 @@
 require 'binarypackage'
 require 'popen'
 require 'filemagic'
+require 'dpkg'
 
 class ShlibCache
-
-  module DpkgInterface
-
-    def which_package_provides(filename)
-      result = nil
-      cmd = "dpkg -S #{File.expand_path(filename)}"
-        exit_status = Popen.popen2(cmd) do |stdin, stdeo|
-        stdin.close
-        result = stdeo.read.split(':', 2)[0]
-      end
-      if exit_status != 0
-        return nil
-      else
-        return result.strip
-      end
-    end
-
-    def version_of_package(package_name)
-      result = nil
-      cmd = "dpkg-query -W --showformat '${Version}' #{package_name}"
-      exit_status = Popen.popen2(cmd) do |stdin, stdeo|
-        stdin.close
-        result = stdeo.read
-      end
-
-      # TODO: proper error reporting
-      return nil if exit_status != 0
-
-      # extract components, we need epoch and upstream version
-      version = result.match(/^(?:(\d+):)?([-.+~a-zA-Z0-9]+?)(?:-([.~+a-zA-Z0-9]+)){0,1}$/)
-      epoch, upstream, release = version[1,4]
-
-      unless epoch.nil?
-        return "#{epoch}:#{upstream}"
-      else
-        return "#{upstream}"
-      end
-    end
-
-  end
 
   class SharedObject
     attr_writer :arch_word_size, :package_name, :package_version
@@ -70,9 +31,10 @@ class ShlibCache
       @package_name = nil
       @package_version = nil
       @arch_word_size = nil
+      @package_manager = nil
 
       if self.class.system_package_manager == 'dpkg'
-        self.extend ShlibCache::DpkgInterface
+        @package_manager = Dpkg
       else
         raise StandardError \
           "System uses unknown or unsupported package manager."
@@ -81,7 +43,7 @@ class ShlibCache
 
     def package_name
       if @package_name.nil?
-        @package_name = which_package_provides @lib_path
+        @package_name = @package_manager.which_package_provides @lib_path
       else
         @package_name
       end
@@ -89,7 +51,7 @@ class ShlibCache
 
     def package_version
       if @package_version.nil?
-        @package_version = version_of_package package_name
+        @package_version = @package_manager.installed_version_of_package package_name
       else
         @package_version
       end
