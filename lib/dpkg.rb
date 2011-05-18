@@ -48,8 +48,14 @@ module Dpkg
       end
     end
 
-    def installed_version_meets_condition(package_name, version, condition)
-      condition_map = {
+    def installed_version_meets_condition(package_name, condition)
+      begin
+        operator, version = condition.match(/^(<<|<=|=|>=|>>)\s*(\S+)$/)[1,2]
+      rescue
+        raise StandardError, "invalid dependency specification '#{condition}'"
+      end
+
+      operator_map = {
         '<<' => 'lt-nl',
         '<=' => 'le-nl',
         '='  => 'eq',
@@ -57,20 +63,18 @@ module Dpkg
         '>>' => 'gt-nl'
       }
 
-      operator = condition_map[condition]
-      if operator.nil?
-        msg = "invalid condition '#{condition} #{package_name}'"
-        raise RuntimeError, msg
-      end
+      operator = operator_map[operator]
 
       installed_version = Dpkg.installed_version_of_package(package_name)
       return false if installed_version.nil?
       return true  if condition.empty?
 
-      cmd = "dpkg --compare-versions '#{installed_version}' '#{condition}' '#{version}'"
+      output = ""
+
+      cmd = "dpkg --compare-versions '#{installed_version}' '#{operator}' '#{version}'"
       exit_status = Popen.popen2(cmd) do |stdin, stdeo|
         stdin.close
-        stdeo.reopen(File.open('/dev/null', 'w'))
+        stdeo.reopen('/dev/null', 'w')
       end
 
       exit_status == 0 ? true : false
