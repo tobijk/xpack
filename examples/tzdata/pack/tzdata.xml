@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="tzdata" section="libs">
+    &description;
+
+    <contents>
+        <file src="/usr/share/zoneinfo/**/*"/>
+    </contents>
+</package>

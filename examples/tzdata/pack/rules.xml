@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rules>
+
+    <prepare>
+    <![CDATA[
+
+find $XPACK_SOURCE_DIR -type f -exec chmod 644 {} ';'
+
+    ]]>
+    </prepare>
+
+    <build>
+    <![CDATA[
+
+TIMEZONES="africa
+          antarctica
+          asia
+          australasia
+          europe
+          northamerica
+          southamerica
+          etcetera
+          factory
+          backward
+          systemv
+          pacificnew"
+
+cd $XPACK_BUILD_DIR
+
+for zone in $TIMEZONES; do \
+  echo "Generating zone files for ${zone}..."
+  /usr/sbin/zic -d tzgen -L leapseconds -y yearistype.sh ${zone} ; \
+done
+
+echo "Generating posixrules..."
+/usr/sbin/zic -d tzgen -p America/New_York
+
+    ]]>
+    </build>
+
+    <install>
+    <![CDATA[
+
+mkdir -p $XPACK_INSTALL_DIR/usr/share/zoneinfo
+cp -a $XPACK_BUILD_DIR/tzgen/* $XPACK_INSTALL_DIR/usr/share/zoneinfo/
+cp -a $XPACK_BUILD_DIR/iso3166.tab $XPACK_INSTALL_DIR/usr/share/zoneinfo/
+cp -a $XPACK_BUILD_DIR/zone.tab $XPACK_INSTALL_DIR/usr/share/zoneinfo/
+
+    ]]>
+    </install>
+
+    <clean>
+    <![CDATA[
+
+rm -fr "$XPACK_SOURCE_DIR" "$XPACK_INSTALL_DIR"
+
+    ]]>
+    </clean>
+
+</rules>
