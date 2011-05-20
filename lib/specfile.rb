@@ -64,8 +64,9 @@ module Specfile
       }
 
       specification = [
-        [ "//*[name() = 'source' or name() = 'package']/@name", /^[a-zA-Z0-9]*(?:-[a-zA-Z0-9]*)*$/ ],
-        [ "//package/@version", /(?:^(?:<<|<=|=|>=|>>)\s*(?:(\d+):)?([-.+~a-zA-Z0-9]+?)(?:-([.~+a-zA-Z0-9]+)){0,1}$)|(?:^==$)/ ],
+        [ "//*[name() = 'source' or name() = 'package']/@name", /^[a-zA-Z0-9]*(?:(?:-|\.)[a-zA-Z0-9]*)*$/ ],
+        [ "//binary//package/@version", /(?:^(?:<<|<=|=|>=|>>)\s*(?:(\d+):)?([-.+~a-zA-Z0-9]+?)(?:-([.~+a-zA-Z0-9]+)){0,1}$)|(?:^==$)/ ],
+        [ "//source//package/@version", /(?:^(?:<<|<=|=|>=|>>)\s*(?:(\d+):)?([-.+~a-zA-Z0-9]+?)(?:-([.~+a-zA-Z0-9]+)){0,1}$)/ ],
         [ "//changelog/release/@epoch", /^\d+$/ ],
         [ "//changelog/release/@version", /^([-.+~a-zA-Z0-9]+?)(?:-([.~+a-zA-Z0-9]+)){0,1}$/ ],
         [ "//changelog/release/@revision", /^[.~+a-zA-Z0-9]+$/ ],
