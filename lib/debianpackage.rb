@@ -195,9 +195,8 @@ class DebianPackage < BinaryPackage
 
     if mode == 'normal'
       [ 'requires', 'provides', 'conflicts', 'replaces' ].each do |dep_type|
-        dep_string = dependencies_as_string(dep_type)
-        next if dep_string.empty?
-        meta += dep_type_2_str[dep_type] + dep_string + "\n"
+        next if @relations[dep_type].empty?
+        meta += dep_type_2_str[dep_type] + @relations[dep_type].to_s + "\n"
       end
     else
       meta += "Depends: #{@name} (= #{@version})\n"

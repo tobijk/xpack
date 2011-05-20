@@ -59,6 +59,14 @@ class BinaryPackage < BasePackage
     @relations = {}
     [ 'requires', 'provides', 'conflicts', 'replaces' ].each do |dep_type|
       dep_node = bin_node.at_xpath("#{dep_type}")
+
+      # replace package/@version attribute, if it's '=='
+      unless dep_node.nil?
+        dep_node.xpath('.//package').each do |pkg_node|
+          pkg_node['version'] = "= #{@version}" if pkg_node['version'] == '=='
+        end
+      end
+
       @relations[dep_type] = BasePackage::DependencySpecification.from_xml(dep_node)
     end
 

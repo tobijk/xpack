@@ -54,6 +54,14 @@ class SourcePackage < BasePackage
     end
   end
 
+  def missing_build_dependencies
+    @relations['requires'].unfulfilled_dependencies
+  end
+
+  def build_dependencies
+    @relations['requires']
+  end
+
   def unpack(source_dir = '.')
     @sources.each do |src_name|
       # rebase to source package folder

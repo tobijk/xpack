@@ -10,7 +10,7 @@
 require 'binarypackage'
 require 'popen'
 require 'filemagic'
-require 'dpkg'
+require 'packagemanager'
 
 class ShlibCache
 
@@ -31,14 +31,7 @@ class ShlibCache
       @package_name = nil
       @package_version = nil
       @arch_word_size = nil
-      @package_manager = nil
-
-      if self.class.system_package_manager == 'dpkg'
-        @package_manager = Dpkg
-      else
-        raise StandardError \
-          "System uses unknown or unsupported package manager."
-      end
+      @package_manager = PackageManager.instance
     end
 
     def package_name

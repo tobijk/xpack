@@ -7,6 +7,8 @@
 # the license text can be found in the file LICENSE included in the source distribution.
 #
 
+require 'packagemanager'
+
 class BasePackage
 
   class Dependency
@@ -15,6 +17,11 @@ class BasePackage
     def initialize(name, version = nil)
       @name = name
       @version = version
+    end
+
+    def fulfilled?
+      package_manager = PackageManager.instance
+      package_manager.installed_version_meets_condition?(@name, @version)
     end
 
   end
@@ -84,25 +91,44 @@ class BasePackage
       @list.empty?
     end
 
-  end
+    def unfulfilled_dependencies()
+      unfulfilled_spec = DependencySpecification.new
 
-  def dependencies_as_string(dep_type)
-    spec = @relations[dep_type]
+      self.each do |alternatives|
+        fulfilled = false
 
-    return "" if spec.nil? || spec.empty?
-
-    spec.collect do |choices|
-      choices.collect do |alt|
-        case alt.version
-          when nil
-            "#{alt.name}"
-          when '=='
-            "#{alt.name} (= #{@version})"
-          else
-            "#{alt.name} (#{alt.version})"
+        alternatives.each do |dependency|
+          if dependency.fulfilled?
+            fulfilled = true
+            break
+          end
         end
-      end.join(' | ')
-    end.join(', ')
+
+        # save, if not fulfilled
+        if not fulfilled
+          alternatives.each { |dep| unfulfilled_spec.index[dep.name] = dep }
+          unfulfilled_spec.list << alternatives
+        end
+      end
+
+      return unfulfilled_spec
+    end
+
+    def to_s
+      return "" if @list.empty?
+
+      @list.collect do |choices|
+        choices.collect do |alt|
+          case alt.version
+            when nil
+              "#{alt.name}"
+            else
+              "#{alt.name} (#{alt.version})"
+          end
+        end.join(' | ')
+      end.join(', ')
+    end
+
   end
 
 end

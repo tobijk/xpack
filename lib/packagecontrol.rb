@@ -90,6 +90,21 @@ class PackageControl
     end
   end
 
+  def call(action)
+    unless [ :list_deps, :clean ].include? action
+      # check dependencies before doing anything else
+      unless (dep_spec = @src_pkg.missing_build_dependencies).empty?
+        raise StandardError, "missing build dependencies: #{dep_spec}"
+      end
+    end
+
+    self.send(action)
+  end
+
+  def list_deps()
+    puts @src_pkg.build_dependencies.to_s
+  end
+
   def prepare()
     ['SOURCE', 'BUILD'].each do |s|
       directory = @defines["XPACK_#{s}_DIR"]
