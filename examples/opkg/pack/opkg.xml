@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="opkg" section="libs">
+    &description;
+
+    <contents>
+        <file src="/usr/bin/opkg-*"/>
+        <file src="/usr/share/opkg"/>
+        <file src="/usr/lib/*.so.*"/>
+        <dir src="/var/lib/opkg"/>
+        <dir src="/etc/opkg"/>
+    </contents>
+</package>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="opkg-dev" section="libs">
+    &description;
+
+    <contents>
+        <file src="/usr/include/"/>
+        <file src="/usr/lib/*.{so,a,la}"/>
+        <file src="/usr/lib/pkgconfig/"/>
+    </contents>
+
+    <requires>
+        <package name="opkg" version="=="/>
+    </requires>
+</package>

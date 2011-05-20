@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE control [
+<!ENTITY rules       SYSTEM "rules.xml">
+<!ENTITY opkg        SYSTEM "opkg.xml">
+<!ENTITY opkg-dev    SYSTEM "opkg-dev.xml">
+<!ENTITY changelog   SYSTEM "changelog.xml">
+<!ENTITY description SYSTEM "description.xml">
+]>
+<control xmlns:xi="http://www.w3.org/2001/XInclude">
+
+    <defines>
+        <def name="XPACK_SOURCE_DIR" value="opkg-src"/>
+        <def name="XPACK_INSTALL_DIR" value="tmp-install"/>
+    </defines>
+
+    <source name="opkg" architecture-independent="false">
+        &description;
+
+        <sources>
+            <file src="opkg-20110407+r616.tar.gz"/>
+        </sources>
+
+        <requires>
+            <package name="libc6-dev"/>
+            <choice>
+                <package name="libcurl4-gnutls-dev"/>
+                <package name="libcurl4-openssl-dev"/>
+            </choice>
+            <package name="libgpgme11-dev"/>
+            <package name="libgpg-error-dev"/>
+            <package name="libssl-dev"/>
+        </requires>
+
+        <!-- build rules -->
+        &rules;
+    </source>
+
+    <!-- package rules -->
+    &opkg;
+    &opkg-dev;
+
+    <!-- changelog -->
+    &changelog;
+
+</control>
