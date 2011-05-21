@@ -92,6 +92,11 @@ def parse_cmd_line()
           end
           config[:format] = arg.intern
         when '--outdir'
+          if not File.directory? arg
+            raise GetoptLong::Error, "no such directory '#{arg}'"
+          elsif not File.writable? arg
+            raise GetoptLong::Error, "directory '#{arg}' is not writable"
+          end
           config[:outdir] = arg
         when '--prepare-only'
           config[:action] = :prepare
