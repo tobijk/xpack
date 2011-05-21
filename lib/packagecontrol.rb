@@ -85,7 +85,7 @@ class PackageControl
           DebianPackage.new(node, :debug_pkgs => @parms[:debug_pkgs])
       end
       pkg.base_dir = @defines['XPACK_INSTALL_DIR']
-      pkg.output_dir = File.expand_path(@parms[:outdir])
+      pkg.output_dir = @parms[:outdir] ? File.expand_path(@parms[:outdir]) : nil
       pkg
     end
   end
