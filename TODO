@@ -1,4 +1,3 @@
-* list/check build depends (dpkg, opkg)
-* shlibcache works with opkg
+* packagemanager interface supports opkg
 * filter elements by arch
 * lots more tests
