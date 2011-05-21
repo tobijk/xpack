@@ -43,8 +43,6 @@ echo "Generating posixrules..."
 
 mkdir -p $XPACK_INSTALL_DIR/usr/share/zoneinfo
 cp -a $XPACK_BUILD_DIR/tzgen/* $XPACK_INSTALL_DIR/usr/share/zoneinfo/
-cp -a $XPACK_BUILD_DIR/iso3166.tab $XPACK_INSTALL_DIR/usr/share/zoneinfo/
-cp -a $XPACK_BUILD_DIR/zone.tab $XPACK_INSTALL_DIR/usr/share/zoneinfo/
 
     ]]>
     </install>
