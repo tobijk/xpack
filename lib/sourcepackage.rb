@@ -104,6 +104,11 @@ class SourcePackage < BasePackage
               raise RuntimeError, "error creating fifo: " + output
             end
           else
+            # seemingly tar does this implicitely, as well
+            dirname = File.dirname(full_path)
+            Dir.mkdir dirname if not File.exist?(dirname)
+
+            # retrieve file contents
             File.open(full_path, 'w+') do |fp|
               archive.read_data(1024) {|data| fp.write(data)}
             end
