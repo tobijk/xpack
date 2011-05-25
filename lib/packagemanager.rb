@@ -14,12 +14,8 @@ class PackageManager
   @@instance = nil
 
   def self.instance
-    @@instance = new(system_package_manager) if @@instance.nil?
+    @@instance = system_package_manager.new if @@instance.nil?
     return @@instance
-  end
-
-  def initialize(klass)
-    self.extend(klass)
   end
 
   def self.system_package_manager

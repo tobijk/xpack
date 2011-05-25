@@ -1,4 +1,3 @@
-* detect 'provided' build dependencies
 * packagemanager interface supports opkg
 * filter elements by arch
 * lots more tests
