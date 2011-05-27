@@ -13,6 +13,7 @@ require 'libarchive_rs'
 require 'popen'
 require 'packagedescription'
 require 'basepackage.rb'
+require 'fileutils'
 
 class SourcePackage < BasePackage
   attr_accessor :base_dir
@@ -106,7 +107,7 @@ class SourcePackage < BasePackage
           else
             # seemingly tar does this implicitely, as well
             dirname = File.dirname(full_path)
-            Dir.mkdir dirname if not File.exist?(dirname)
+            FileUtils.makedirs(dirname) if not File.exist?(dirname)
 
             # retrieve file contents
             File.open(full_path, 'w+') do |fp|
