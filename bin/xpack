@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # -*- encoding: utf-8 -*-
 #
-# This file is part of the XPack Package Manager
-# Copyright (C) 2010, Tobias Koch <tobias.koch@gmail.com>
+# This file is part of the XPack Package Generator
+# Copyright (C) 2010-2011, Tobias Koch <tobias.koch@gmail.com>
 #
 # XPack is licensed under the GNU General Public License, version 2. A copy of
 # the license text can be found in the file LICENSE included in the source distribution.
@@ -23,7 +23,7 @@ XPACK_ERR_INTERRUPT  = 2
 XPACK_ERR_RUNTIME    = 3
 
 def print_usage()
-  puts "XPack Package Manager, version #{XPACK_VERSION}                               "
+  puts "XPack Package Generator, version #{XPACK_VERSION}                             "
   puts "Copyright (C) 2010-2011, Tobias Koch <tobias.koch@gmail.com>                  "
   puts "                                                                              "
   puts "Usage: xpack [OPTIONS] <specfile>                                             "
