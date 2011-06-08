@@ -188,6 +188,8 @@ class BinaryPackage < BasePackage
   end
 
   def strip_debug_symbols
+    hardlinks = Hash.new { |h, k| h[k] = Hash.new }
+
     # create base_dir/usr/lib/debug
     [ 'usr', 'lib', 'debug' ].inject('') do |path, dir|
       File.exist?(@base_dir + '/' + path + '/' + dir) or
@@ -211,23 +213,34 @@ class BinaryPackage < BasePackage
           path += "/#{dir}"
         end
 
-        # separate debug information
-        cmd_list = [
-          "objcopy --only-keep-debug #{real_path} #{debug_path}",
-          "objcopy --strip-unneeded #{real_path}",
-          "objcopy --add-gnu-debuglink=#{debug_path} #{real_path}"
-        ]
+        # get device id and inode
+        fstat = File.lstat(real_path)
+        ino = fstat.ino
+        dev = fstat.dev
 
-        cmd_list.each do |cmd|
-          Popen.popen2(cmd) do |stdin, stdeo|
-            stdin.close
-            stdeo.each_line do |line|
-              puts line
+        # check if this is a hardlink
+        if hardlinks[dev][ino].nil?
+
+          # separate debug information
+          cmd_list = [
+            "objcopy --only-keep-debug #{real_path} #{debug_path}",
+            "objcopy --strip-unneeded #{real_path}",
+            "objcopy --add-gnu-debuglink=#{debug_path} #{real_path}"
+          ]
+
+          cmd_list.each do |cmd|
+            Popen.popen2(cmd) do |stdin, stdeo|
+              stdin.close
+              stdeo.each_line do |line|
+                puts line
+              end
             end
           end
+
+          hardlinks[dev][ino] = debug_path
         end
 
-      end #if
+      end #if unstripped?
     end
   end
 
