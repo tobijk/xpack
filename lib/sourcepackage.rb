@@ -138,8 +138,7 @@ class SourcePackage < BasePackage
   ['prepare', 'build', 'install', 'clean'].each do |name|
     class_eval %{
       def #{name}(env = {})
-        exit_code = Popen.popen2("/bin/sh -s") do |stdin, stdeo|
-          env.each_pair {|k,v| stdin.write("\#{k}=\#{v}\n")}
+        exit_code = Popen.popen2("/bin/sh -x -s", env) do |stdin, stdeo|
           stdin.write(@rules['#{name}'])
           stdin.close
           stdeo.each_line do |line|
