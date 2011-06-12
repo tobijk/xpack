@@ -125,7 +125,7 @@ class SourcePackage < BasePackage
       patch_file = File.expand_path(@base_dir + '/' + p)\
         unless p.start_with? '/'
 
-      cmd = "patch -f -p1 -d #{source_dir} -i #{patch_file}"
+      puts cmd = "patch -f -p1 -d #{source_dir} -i #{patch_file}"
       exit_code = Popen.popen2(cmd) do |stdin, stdeo|
         stdin.close
         stdeo.each_line { |line| puts line }
