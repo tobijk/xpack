@@ -183,7 +183,7 @@ class DebianPackage < BinaryPackage
     meta += "Version: #{@version}\n"
     meta += "Source: #{@source}\n"
     meta += "Maintainer: #{@maintainer}\n"
-    meta += "Section: #{@section}\n"
+    meta += "Section: #{mode == 'normal' ? @section : 'debug'}\n"
     meta += "Architecture: #{debian_architecture}\n"
 
     dep_type_2_str = {
