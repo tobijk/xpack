@@ -138,6 +138,7 @@ class SourcePackage < BasePackage
   ['prepare', 'build', 'install', 'clean'].each do |name|
     class_eval %{
       def #{name}(env = {})
+        env['XPACK_PARALLEL_JOBS'] = ENV['XPACK_PARALLEL_JOBS'] || '1'
         exit_code = Popen.popen2("/bin/sh -x -s", env) do |stdin, stdeo|
           stdin.write(@rules['#{name}'])
           stdin.close
