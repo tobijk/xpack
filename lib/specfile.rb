@@ -71,7 +71,7 @@ module Specfile
         [ "//changelog/release/@version", /^([-.+~a-zA-Z0-9]+?)(?:-([.~+a-zA-Z0-9]+)){0,1}$/ ],
         [ "//changelog/release/@revision", /^[.~+a-zA-Z0-9]+$/ ],
         [ "//changelog/release/@email", /^[-_%.a-zA-Z0-9]+@[-.a-z0-9]+\.[a-z]{2,4}$/ ],
-        [ "//changelog/release/@date", /^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+(?:((?:-|\+)\d{4})|(?:GMT(?:(?:-|\+)\d{1,2})))$/ ]
+        [ "//changelog/release/@date", /^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+(?:((?:-|\+)\d{4})|(?:(?:GMT|UTC)(?:(?:-|\+)\d{1,2}))|[a-zA-Z]+)$/ ]
       ]
 
       specification.each do |xpath, regex|
