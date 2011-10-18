@@ -231,42 +231,44 @@
                 </optional>
 
                 <!-- CONTENTS -->
-                <element name="contents">
-                    <interleave>
-                        <zeroOrMore>
-                            <element name="dir">
-                                <attribute name="src"/>
-                                <optional>
-                                    <attribute name="owner"/>
-                                </optional>
-                                <optional>
-                                    <attribute name="group"/>
-                                </optional>
-                                <optional>
-                                    <attribute name="mode"/>
-                                </optional>
-                            </element>
-                        </zeroOrMore>
+                <optional>
+                    <element name="contents">
+                        <interleave>
+                            <zeroOrMore>
+                                <element name="dir">
+                                    <attribute name="src"/>
+                                    <optional>
+                                        <attribute name="owner"/>
+                                    </optional>
+                                    <optional>
+                                        <attribute name="group"/>
+                                    </optional>
+                                    <optional>
+                                        <attribute name="mode"/>
+                                    </optional>
+                                </element>
+                            </zeroOrMore>
 
-                        <zeroOrMore>
-                            <element name="file">
-                                <attribute name="src"/>
-                                <optional>
-                                    <attribute name="owner"/>
-                                </optional>
-                                <optional>
-                                    <attribute name="group"/>
-                                </optional>
-                                <optional>
-                                    <attribute name="mode"/>
-                                </optional>
-                                <optional>
-                                    <attribute name="conffile"/>
-                                </optional>
-                            </element>
-                        </zeroOrMore>
-                    </interleave>
-                </element>
+                            <zeroOrMore>
+                                <element name="file">
+                                    <attribute name="src"/>
+                                    <optional>
+                                        <attribute name="owner"/>
+                                    </optional>
+                                    <optional>
+                                        <attribute name="group"/>
+                                    </optional>
+                                    <optional>
+                                        <attribute name="mode"/>
+                                    </optional>
+                                    <optional>
+                                        <attribute name="conffile"/>
+                                    </optional>
+                                </element>
+                            </zeroOrMore>
+                        </interleave>
+                    </element>
+                </optional>
 
                 <!-- MAINTAINER SCRIPTS -->
                 <optional>
