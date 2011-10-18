@@ -147,7 +147,7 @@ class BinaryPackage < BasePackage
         when 'dir'
           attr.type = 'directory'
         when 'file'
-          if real_path =~ /(\*|\?)/
+          if real_path =~ /(\*|\?|\{)/
             listing = Dir[real_path]
           elsif File.directory?(real_path)
             real_path.slice! /\/$/
@@ -174,7 +174,7 @@ class BinaryPackage < BasePackage
     end
 
     # delete globs
-    @contents.delete_if { |entry, attr| entry =~ /(\*|\?)/ }
+    @contents.delete_if { |entry, attr| entry =~ /(\*|\?|\{)/ }
 
     # merge new contents
     @contents.merge! additional_contents
