@@ -101,7 +101,7 @@ class ShlibCache
 
       shared_obj = SharedObject.new(src)
       shared_obj.package_name = binary_package.name
-      shared_obj.package_version = binary_package.epoch_and_upstream_version
+      shared_obj.package_version = binary_package.version
       shared_obj.arch_word_size = FileMagic.arch_word_size file_type
 
       # retrieve existing entries
