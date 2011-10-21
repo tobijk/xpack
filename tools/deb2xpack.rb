@@ -125,7 +125,7 @@ ERB_BINARY_PACKAGE = ERB.new(<<'EOF')
     </description>
 
     <requires><%
-        @control.source['build-depends'].each do |pkg, version|
+        package['depends'].each do |pkg, version|
           if version
             %>
         <package name="<%= pkg %>" version="<%= esc(version) %>"/><%
