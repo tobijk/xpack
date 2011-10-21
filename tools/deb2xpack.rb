@@ -270,7 +270,9 @@ module Debian
                   .gsub(/\s+/, '')\
                   .gsub(/\[[^\]]+\]/, '')\
                   .gsub(/(\([<=>]+)/, '\1 ')\
+                  .gsub(/= \$\{binary:Version\}/, '==')\
                   .split(',')\
+                  .delete_if { |dep| dep.match(/\$\{(?:shlibs|misc):Depends\}/) }\
                   .map { |dep| dep.match(/([^(]+)(?:\(([^)]+)\))?/)[1,2] }
             end
           end
