@@ -261,6 +261,10 @@ class BinaryPackage < BasePackage
           shlib_cache[lib_name].each do |shared_obj|
             if shared_obj.arch_word_size == arch_word_size
               pkg, version = shared_obj.package_name_and_version
+
+              # this cache entry is not part of a package
+              next unless pkg && version
+
               # don't overwrite existing entries and don't add pkg itself
               if @relations['requires'][pkg].nil? && pkg != @name
                 @relations['requires'][pkg] =\
