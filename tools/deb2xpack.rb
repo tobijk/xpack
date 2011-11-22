@@ -191,7 +191,7 @@ module Debian
 
         File.open(filename, 'r') do |f|
           f.each_line do |line|
-            if line.match(/^[-.a-z0-9]+\s+\(([^)]+)\)\s+\w+;\s*urgency=\w+/)
+            if line.match(/^[-.a-z0-9]+\s+\(([^)]+)\)\s+[-a-z0-9]+;\s*urgency=\w+/)
               version = $1
               content = ""
             elsif line.match(/ --\s+([^<]+)\s+<([^>]+)>\s+((?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), .*)/)
