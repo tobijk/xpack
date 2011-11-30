@@ -233,6 +233,10 @@
                 <!-- CONTENTS -->
                 <optional>
                     <element name="contents">
+                        <optional>
+                            <attribute name="subdir"/>
+                        </optional>
+
                         <interleave>
                             <zeroOrMore>
                                 <element name="dir">

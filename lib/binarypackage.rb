@@ -83,6 +83,10 @@ class BinaryPackage < BasePackage
       )
     end
 
+    # conflicting package variants built from same source
+    @content_subdir = bin_node.xpath('contents/@subdir')\
+      .inject(nil) { |m, node| node.content }
+
     # maintainer scripts
     @maintainer_scripts = {}
     bin_node.xpath('maintainer-scripts/*').each do |node|
@@ -91,7 +95,7 @@ class BinaryPackage < BasePackage
       end
     end
 
-    @base_dir = 'pack/tmp-install'
+    self.base_dir = 'pack/tmp-install'
     @output_dir = '..'
   end
 
@@ -109,6 +113,8 @@ class BinaryPackage < BasePackage
 
   def base_dir=(base_dir)
     @base_dir = File.expand_path(base_dir) if base_dir
+    @base_dir = File.expand_path(@base_dir + '/' + @content_subdir)\
+      if @content_subdir
   end
 
   def output_dir=(output_dir)
