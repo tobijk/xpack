@@ -272,7 +272,7 @@ module Debian
                   .gsub(/(\([<=>]+)/, '\1 ')\
                   .gsub(/= \$\{binary:Version\}/, '==')\
                   .split(',')\
-                  .delete_if { |dep| dep.match(/\$\{(?:shlibs|misc):Depends\}/) }\
+                  .delete_if { |dep| dep.match(/\$\{(?:shlibs|misc):(?:Depends|Suggests)\}/) }\
                   .map { |dep| dep.match(/([^(]+)(?:\(([^)]+)\))?/)[1,2] }
             end
           end
