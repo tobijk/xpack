@@ -274,6 +274,8 @@ module Debian
                   .split(',')\
                   .delete_if { |dep| dep.match(/\$\{(?:shlibs|misc):(?:Depends|Suggests)\}/) }\
                   .map { |dep| dep.match(/([^(]+)(?:\(([^)]+)\))?/)[1,2] }
+            else
+              e[dep_type] = []
             end
           end
 
@@ -284,7 +286,7 @@ module Debian
             e['summary'], e['description'] = summary, description
           end
 
-          unless e['build-depends']
+          unless e['source']
             e['files'], e['dirs'] = \
               Auxiliary.load_content_spec(e['name'], File.dirname(filename))
           end
@@ -323,15 +325,15 @@ module Debian
 
       def load_content_spec(package_name, path)
         filter = [
-          'files', 'dirs', "#{package_name}.files", "#{package_name}.dirs"
+          'install', 'dirs', "#{package_name}.install", "#{package_name}.dirs"
         ].map { |f| File.join(path, f) }
 
-        content = Hash.new
+        content = Hash.new { |h, k| h[k] = [] }
 
         Dir.glob(filter).each do |file|
           name = type = nil
 
-          type = unless [ 'files', 'dirs' ].include? file
+          type = unless [ 'install', 'dirs' ].include? file
             File.basename(file).match(/\.([^.]+)$/)[1]
           else
             file
@@ -343,7 +345,7 @@ module Debian
             .delete_if {|e| e.empty? }
         end
 
-        return content['files'], content['dirs']
+        return content['install'], content['dirs']
       end
 
     end
