@@ -89,7 +89,7 @@ CFLAGS=-g $XPACK_SOURCE_DIR/configure \
     <![CDATA[
 
 cd $XPACK_BUILD_DIR
-make
+make -j$XPACK_PARALLEL_JOBS
 
     ]]>
     </build>
