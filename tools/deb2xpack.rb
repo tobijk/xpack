@@ -333,7 +333,7 @@ module Debian
         Dir.glob(filter).each do |file|
           name = type = nil
 
-          type = unless [ 'install', 'dirs' ].include? file
+          type = unless [ 'install', 'dirs' ].include? File.basename(file)
             File.basename(file).match(/\.([^.]+)$/)[1]
           else
             file
