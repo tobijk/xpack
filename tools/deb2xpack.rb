@@ -255,10 +255,10 @@ module Debian
           end
         end
 
-        # throw out udebs
+        # throw out udebs and dbg packages
         entries.delete_if { |e|
           e['section'].to_s =~ /^\s*debian-installer\s*$/ ||\
-          e['package'].to_s =~ /-udeb$/ ||\
+          e['package'].to_s =~ /-(?:udeb|dbg)$/ ||\
           e['xc-package-type'].to_s == 'udeb'
         }
 
