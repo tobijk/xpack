@@ -14,6 +14,7 @@ require 'popen'
 require 'packagedescription'
 require 'basepackage.rb'
 require 'fileutils'
+require 'platform'
 
 class SourcePackage < BasePackage
   attr_accessor :base_dir
@@ -138,7 +139,12 @@ class SourcePackage < BasePackage
   ['prepare', 'build', 'install', 'clean'].each do |name|
     class_eval %{
       def #{name}(env = {})
-        env['XPACK_PARALLEL_JOBS'] = ENV['XPACK_PARALLEL_JOBS'] || '1'
+        # env setup
+        num_parallel_jobs = (Platform.num_cpus * 1.5).to_i.to_s
+        env.merge! Platform.build_flags
+        env['XPACK_PARALLEL_JOBS'] = ENV['XPACK_PARALLEL_JOBS'] || num_parallel_jobs
+
+        # execute task
         exit_code = Popen.popen2("/bin/sh -x -s", env) do |stdin, stdeo|
           stdin.write(@rules['#{name}'])
           stdin.close
