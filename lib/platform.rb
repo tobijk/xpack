@@ -18,7 +18,7 @@ class Platform
 
       # first check if package manager knows
       begin
-        build_flags = PackageManager.instance.get_build_flagss
+        build_flags = PackageManager.instance.get_build_flags
       rescue NoMethodError ;; end
 
       # then check if gcc, g++ are installed
