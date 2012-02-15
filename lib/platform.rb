@@ -19,7 +19,9 @@ class Platform
       # first check if package manager knows
       begin
         build_flags = PackageManager.instance.get_build_flags
-      rescue NoMethodError ;; end
+      rescue NoMethodError ; end
+
+      return build_flags unless build_flags.empty?
 
       # then check if gcc, g++ are installed
       ENV['PATH'].split(':').each do |path|
@@ -44,6 +46,15 @@ class Platform
       end
 
       return num_cpus
+    end
+
+    def find_executable(executable_name)
+      ENV['PATH'].split(':').each do |path|
+        location = "#{path}/#{executable_name}"
+        return location if File.exist? location
+      end
+
+      return nil
     end
 
   end
