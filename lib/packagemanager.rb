@@ -20,7 +20,7 @@ class PackageManager
 
   def self.system_package_manager
     [ 'dpkg', 'opkg' ].each do |packager_name|
-      [ '/usr/bin/', '/usr/sbin', '/bin', '/sbin' ].each do |path|
+      ENV['PATH'].split(':').each do |path|
         if File.exist?(path + '/' + packager_name)
           return Kernel.const_get(packager_name.capitalize)
         end
