@@ -92,5 +92,19 @@ class Dpkg
     exit_status == 0 ? true : false
   end
 
+  def get_build_flags
+    build_flags = Hash.new
+
+    dpkg_buildflags = Platform.find_executable('dpkg-buildflags')
+    return build_flags unless dpkg_buildflags
+
+    `#{dpkg_buildflags} --list`.each_line do |flag|
+      flag.strip!
+      build_flags[flag] = `#{dpkg_buildflags} --get #{flag}`.strip
+    end
+
+    return build_flags
+  end
+
 end
 
