@@ -93,8 +93,10 @@ class PackageControl
   def call(action)
     unless [ :list_deps, :clean ].include? action
       # check dependencies before doing anything else
-      unless (dep_spec = @src_pkg.missing_build_dependencies).empty?
-        raise StandardError, "missing build dependencies: #{dep_spec}"
+      unless @parms[:ignore_deps]
+        unless (dep_spec = @src_pkg.missing_build_dependencies).empty?
+          raise StandardError, "missing build dependencies: #{dep_spec}"
+        end
       end
     end
 
