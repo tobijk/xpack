@@ -237,6 +237,8 @@ module Debian
           fields = {}
 
           entry.each_line do |line|
+            next if line.start_with? '#'
+
             if line.match(/^\S+:/)
               field_name, field_content = line.split(':', 2)
 
@@ -254,6 +256,9 @@ module Debian
             fields[k].strip!
           end
         end
+
+        # those entries were commented out
+        entries.delete({})
 
         # throw out udebs and dbg packages
         entries.delete_if { |e|
