@@ -78,7 +78,7 @@ ERB_PACKAGE_RULES = ERB.new(<<'EOF')
     <![CDATA[
 
 cd $XPACK_BUILD_DIR
-CFLAGS=-g $XPACK_SOURCE_DIR/configure \
+$XPACK_SOURCE_DIR/configure \
     --prefix=/usr \
     --disable-nls
 
