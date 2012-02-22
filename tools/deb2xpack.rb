@@ -325,16 +325,22 @@ module Debian
 
       def load_content_spec(package_name, path)
         filter = [
-          'install', 'dirs', "#{package_name}.install", "#{package_name}.dirs"
+          'files',
+          'install',
+          'dirs',
+          "#{package_name}.files",
+          "#{package_name}.install",
+          "#{package_name}.dirs"
         ].map { |f| File.join(path, f) }
 
         content = Hash.new { |h, k| h[k] = [] }
 
         Dir.glob(filter).each do |file|
           name = type = nil
+          basename = File.basename(file)
 
-          type = unless [ 'install', 'dirs' ].include? File.basename(file)
-            File.basename(file).match(/\.([^.]+)$/)[1]
+          type = unless [ 'files', 'install', 'dirs' ].include? basename
+            basename.match(/\.([^.]+)$/)[1]
           else
             file
           end
@@ -345,7 +351,14 @@ module Debian
             .delete_if {|e| e.empty? }
         end
 
-        return content['install'], content['dirs']
+        files = (content['files'] + content['install'])
+        files.uniq!
+        files.map! { |f| '/' + f unless f =~ /^\// }
+
+        dirs = content['dirs']
+        dirs.map!  { |d| '/' + d unless d =~ /^\// }
+
+        return files, dirs
       end
 
     end
