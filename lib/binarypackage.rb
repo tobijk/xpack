@@ -155,7 +155,7 @@ class BinaryPackage < BasePackage
         when 'file'
           if real_path =~ /(\*|\?|\{)/
             listing = Dir[real_path]
-          elsif File.directory?(real_path)
+          elsif File.directory?(real_path) && !File.symlink?(real_path)
             real_path.slice! /\/$/
             listing = Dir[real_path + '/**/*']
           else
