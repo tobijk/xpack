@@ -1,3 +1,4 @@
+* check package 'section'
 * packagemanager interface supports opkg
 * filter elements by arch
 * lots more tests
