@@ -24,7 +24,7 @@ XPACK_ERR_RUNTIME    = 3
 
 def print_usage()
   puts "XPack Package Generator, version #{XPACK_VERSION}                             "
-  puts "Copyright (C) 2010-2011, Tobias Koch <tobias.koch@gmail.com>                  "
+  puts "Copyright (C) 2010-2012, Tobias Koch <tobias.koch@gmail.com>                  "
   puts "                                                                              "
   puts "Usage: xpack [OPTIONS] <specfile>                                             "
   puts "                                                                              "
