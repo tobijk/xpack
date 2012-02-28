@@ -73,7 +73,7 @@ class BinaryPackage < BasePackage
     # contents specification
     @content_spec = {}
     bin_node.xpath('contents/*').each do |node|
-      src = node['src'].strip
+      src = node['src'].strip.gsub(/\/$/, '')
       @content_spec[src] = EntryAttributes.new(
         :type     => node.name,
         :mode     => node['mode'],
