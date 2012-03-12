@@ -80,6 +80,9 @@
                         <zeroOrMore>
                             <element name="file">
                                 <attribute name="src"/>
+                                <optional>
+                                    <attribute name="subdir"/>
+                                </optional>
                             </element>
                         </zeroOrMore>
                     </element>

@@ -48,7 +48,9 @@ class SourcePackage < BasePackage
     end
 
     # original package sources
-    @sources = source_node.xpath('sources/file').collect {|file| file['src']}
+    @sources = source_node.xpath('sources/file').collect { |file|
+      [ file['src'], file['subdir'].to_s ]
+    }
 
     @rules = {}
     source_node.xpath('rules/*').select{|node| node.element?}.each do |node|
@@ -65,21 +67,30 @@ class SourcePackage < BasePackage
   end
 
   def unpack(source_dir = '.')
-    @sources.each do |src_name|
+    @sources.each do |src_name, subdir|
       # rebase to source package folder
       src_name = File.expand_path(@base_dir + '/' + src_name) \
         unless src_name.start_with? '/'
+
+      # create subdir if necessary
+      source_dir_and_subdir = File.expand_path(source_dir + '/' + subdir)
+      FileUtils.makedirs(source_dir_and_subdir) \
+        unless File.exist?(source_dir_and_subdir)
+
       # check if file is there
       unless File.file? src_name
         raise RuntimeError, "package file '#{src_name}' not found"
       end
+
       Archive.read_open_filename(src_name) do |archive|
         while entry = archive.next_header
           pathname = entry.pathname
           pathname.slice!(/^\/?[^\/]*\//)
           next if pathname.empty?
-          full_path = source_dir + '/' + pathname
+
+          full_path = source_dir_and_subdir + '/' + pathname
           puts "#{entry.pathname} -> #{full_path}"
+
           if entry.directory?
             Dir.mkdir full_path unless File.directory? full_path
           elsif entry.symbolic_link?
@@ -145,7 +156,7 @@ class SourcePackage < BasePackage
         env['XPACK_PARALLEL_JOBS'] = ENV['XPACK_PARALLEL_JOBS'] || num_parallel_jobs
 
         # execute task
-        exit_code = Popen.popen2("/bin/sh -x -s", env) do |stdin, stdeo|
+        exit_code = Popen.popen2("/bin/sh -e -x -s", env) do |stdin, stdeo|
           stdin.write(@rules['#{name}'])
           stdin.close
           stdeo.each_line do |line|
