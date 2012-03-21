@@ -44,7 +44,9 @@ class SourcePackage < BasePackage
     # patches to the sources
     @patches = []
     source_node.xpath('patches/patchset').each do |patch_set|
-      @patches += patch_set.xpath('file').collect {|file| file['src']}
+      @patches += patch_set.xpath('file').collect { |file|
+        [ file['src'], patch_set['subdir'].to_s ]
+      }
     end
 
     # original package sources
@@ -133,9 +135,11 @@ class SourcePackage < BasePackage
   end
 
   def patch(source_dir = '.')
-    @patches.each do |p|
+    @patches.each do |p, subdir|
       patch_file = File.expand_path(@base_dir + '/' + p)\
         unless p.start_with? '/'
+
+      source_dir = source_dir + '/' + subdir unless subdir.empty?
 
       puts cmd = "patch -f -p1 -d #{source_dir} -i #{patch_file}"
       exit_code = Popen.popen2(cmd) do |stdin, stdeo|

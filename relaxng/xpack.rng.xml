@@ -97,6 +97,10 @@
                                     <attribute name="arch"/>
                                 </optional>
 
+                                <optional>
+                                    <attribute name="subdir"/>
+                                </optional>
+
                                 <zeroOrMore>
                                     <element name="file">
                                         <attribute name="src"/>
