@@ -135,13 +135,14 @@ class SourcePackage < BasePackage
   end
 
   def patch(source_dir = '.')
-    @patches.each do |p, subdir|
-      patch_file = File.expand_path(@base_dir + '/' + p)\
-        unless p.start_with? '/'
+    @patches.each do |patch_file, subdir|
+      patch_file = File.expand_path(@base_dir + '/' + patch_file)\
+        unless patch_file.start_with? '/'
 
-      source_dir = source_dir + '/' + subdir unless subdir.empty?
+      e_source_dir = \
+        if subdir.empty? then source_dir else source_dir + '/' + subdir end
 
-      puts cmd = "patch -f -p1 -d #{source_dir} -i #{patch_file}"
+      puts cmd = "patch -f -p1 -d #{e_source_dir} -i #{patch_file}"
       exit_code = Popen.popen2(cmd) do |stdin, stdeo|
         stdin.close
         stdeo.each_line { |line| puts line }
