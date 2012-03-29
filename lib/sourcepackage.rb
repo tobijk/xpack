@@ -94,39 +94,20 @@ class SourcePackage < BasePackage
           puts "#{entry.pathname} -> #{full_path}"
 
           if entry.directory?
-            Dir.mkdir full_path unless File.directory? full_path
+            FileUtils.makedirs(full_path) unless File.directory? full_path
           elsif entry.symbolic_link?
             File.symlink(entry.symlink, full_path)
-          elsif entry.block_special?
-            cmd = "mknod #{full_path} b #{entry.devmajor} #{entry.devminor} 2>&1"
-            output = IO.popen(cmd) {|p| p.readlines}
-            output = if output.empty? then "" else output[0].chomp end
-            if $? != 0
-              raise RuntimeError, "error creating block device: " + output
-            end
-          elsif entry.character_special?
-            cmd = "mknod #{full_path} c #{entry.devmajor} #{entry.devminor} 2>&1"
-            output = IO.popen(cmd) {|p| p.readlines}
-            output = if output.empty? then "" else output[0].chomp end
-            if $? != 0
-              raise RuntimeError, "error creating char device: " + output
-            end
-          elsif entry.fifo?
-            cmd = "mknod #{full_path} p 2>&1"
-            output = IO.popen(cmd) {|p| p.readlines}
-            output = if output.empty? then "" else output[0].chomp end
-            if $? != 0
-              raise RuntimeError, "error creating fifo: " + output
-            end
-          else
-            # seemingly tar does this implicitely, as well
+          elsif entry.file?
+            # tar does this implicitely, as well
             dirname = File.dirname(full_path)
             FileUtils.makedirs(dirname) if not File.exist?(dirname)
-
-            # retrieve file contents
+            # extract file contents
             File.open(full_path, 'w+') do |fp|
               archive.read_data(1024) {|data| fp.write(data)}
             end
+          else
+            msg = "file type of '#{entry.pathname}' is not allowed"
+            raise RuntimeError, msg
           end
           File.chmod(entry.mode, full_path) unless entry.symbolic_link? 
         end
