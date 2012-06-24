@@ -46,6 +46,9 @@ def print_usage()
   puts " -r --repackage     run the install target and generate binary packages       "
   puts " -c --clean         run the clean target                                      "
   puts "                                                                              "
+  puts " --debianize        create 'debian' folder allowing package to be assembled   "
+  puts "                    with dpkg-buildpackage on a Debian-based system           "
+  puts "                                                                              "
 end
 
 def parse_cmd_line()
@@ -70,7 +73,8 @@ def parse_cmd_line()
     [ '--build-only', '-b',   GetoptLong::NO_ARGUMENT ],
     [ '--install-only', '-i', GetoptLong::NO_ARGUMENT ],
     [ '--repackage', '-r',    GetoptLong::NO_ARGUMENT ],
-    [ '--clean', '-c',        GetoptLong::NO_ARGUMENT ]
+    [ '--clean', '-c',        GetoptLong::NO_ARGUMENT ],
+    [ '--debianize',          GetoptLong::NO_ARGUMENT ]
   )
 
   opts.quiet = true
@@ -108,6 +112,8 @@ def parse_cmd_line()
           config[:action] = :repackage
         when '--clean'
           config[:action] = :clean
+        when '--debianize'
+          config[:action] = :debianize
       end
     end
   rescue GetoptLong::Error => e

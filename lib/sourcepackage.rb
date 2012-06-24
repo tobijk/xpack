@@ -17,7 +17,7 @@ require 'fileutils'
 require 'platform'
 
 class SourcePackage < BasePackage
-  attr_accessor :base_dir
+  attr_accessor :base_dir, :patches, :rules, :sources
 
   def initialize(xml_config)
     case xml_config
@@ -53,6 +53,8 @@ class SourcePackage < BasePackage
     @sources = source_node.xpath('sources/file').collect { |file|
       [ file['src'], file['subdir'].to_s ]
     }
+
+    @maintainer = source_node['maintainer'] + ' <' + source_node['email'] + '>'
 
     @rules = {}
     source_node.xpath('rules/*').select{|node| node.element?}.each do |node|
@@ -131,6 +133,16 @@ class SourcePackage < BasePackage
 
       raise RuntimeError, "patch failed to apply" unless exit_code == 0
     end
+  end
+
+  def meta_data(mode = 'normal')
+    meta = String.new
+    meta += "Source: #{@name}\n"
+    meta += "Priority: optional\n"
+    meta += "Maintainer: #{@maintainer}\n"
+    meta += "Build-depends: #{self.build_dependencies}\n"
+
+    return meta
   end
 
   ['prepare', 'build', 'install', 'clean'].each do |name|

@@ -179,12 +179,18 @@ class DebianPackage < BinaryPackage
 
   def meta_data(mode = 'normal')
     meta = String.new
-    meta += mode == 'normal' ? "Package: #{@name}\n" : "Package: #{@name}-dbg\n"
-    meta += "Version: #{@version}\n"
-    meta += "Source: #{@source}\n"
-    meta += "Maintainer: #{@maintainer}\n"
-    meta += "Section: #{mode == 'normal' ? @section : 'debug'}\n"
-    meta += "Architecture: #{debian_architecture}\n"
+    meta += mode != 'debug' ? "Package: #{@name}\n" : "Package: #{@name}-dbg\n"
+
+    unless mode == 'debianize'
+      meta += "Version: #{@version}\n"
+      meta += "Source: #{@source}\n"
+      meta += "Architecture: #{debian_architecture}\n"
+      meta += "Maintainer: #{@maintainer}\n"
+    else
+      meta += "Architecture: #{debian_architecture == 'all' ? 'all' : 'any'}\n"
+    end
+
+    meta += "Section: #{mode != 'debug' ? @section : 'debug'}\n"
 
     dep_type_2_str = {
       'requires'  => 'Depends: ',
@@ -193,7 +199,7 @@ class DebianPackage < BinaryPackage
       'replaces'  => 'Replaces: '
     }
 
-    if mode == 'normal'
+    if mode != 'debug'
       [ 'requires', 'provides', 'conflicts', 'replaces' ].each do |dep_type|
         next if @relations[dep_type].empty?
         meta += dep_type_2_str[dep_type] + @relations[dep_type].to_s + "\n"
@@ -202,7 +208,7 @@ class DebianPackage < BinaryPackage
       meta += "Depends: #{@name} (= #{@version})\n"
     end
 
-    if mode == 'normal'
+    if mode != 'debug'
       meta += "Description: #{@description.summary}\n"
       full_description = @description.full_description
       meta += "#{full_description}\n" unless full_description.empty?
