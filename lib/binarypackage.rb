@@ -12,7 +12,7 @@ require 'filemagic'
 require 'basepackage'
 
 class BinaryPackage < BasePackage
-  attr_reader :contents, :name, :version, :base_dir, :output_dir, :maintainer_scripts, :content_spec
+  attr_reader :contents, :name, :version, :base_dir, :output_dir, :maintainer_scripts, :content_spec, :content_subdir
 
   class EntryAttributes
     attr_accessor :src, :type, :mode, :owner, :group, :conffile

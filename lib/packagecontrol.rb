@@ -283,7 +283,14 @@ class PackageControl
       fp.write "\tdh_testdir\n"
       fp.write "\t$(XPACK_BASE_DIR)/debian/rules.d/install.sh\n"
       fp.write "\tdh_installdirs\n"
-      fp.write "\tdh_install --sourcedir=$(XPACK_INSTALL_DIR)\n"
+      @bin_pkgs.each do |pkg|
+        fp.write "\tdh_install --package=#{pkg.name} "
+        if pkg.content_subdir
+          fp.write "--sourcedir=$(XPACK_INSTALL_DIR)/#{pkg.content_subdir}/\n"
+        else
+          fp.write "--sourcedir=$(XPACK_INSTALL_DIR) \n"
+        end
+      end
       fp.write "\ttouch install-stamp\n\n"
 
       fp.write "binary: install-stamp\n"
