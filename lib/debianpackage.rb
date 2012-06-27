@@ -207,7 +207,7 @@ class DebianPackage < BinaryPackage
         depends << @relations[dep_type].to_s unless @relations[dep_type].empty?
 
         # add misc and shlib dependencies
-        if dep_type == 'requires'
+        if mode == 'debianize' && dep_type == 'requires'
           depends << '${shlibs:Depends}' if debian_architecture != 'all'
           depends << '${misc:Depends}'
         end
