@@ -74,6 +74,12 @@ class BinaryPackage < BasePackage
     @content_spec = {}
     bin_node.xpath('contents/*').each do |node|
       src = node['src'].strip.gsub(/\/$/, '')
+
+      # don't overwrite 'file' entries with 'dir' entries
+      next if @content_spec[src] && \
+        @content_spec[src].type == 'file' && \
+        node.name == 'dir'
+
       @content_spec[src] = EntryAttributes.new(
         :type     => node.name,
         :mode     => node['mode'],
