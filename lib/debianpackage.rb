@@ -201,8 +201,21 @@ class DebianPackage < BinaryPackage
 
     if mode != 'debug'
       [ 'requires', 'provides', 'conflicts', 'replaces' ].each do |dep_type|
-        next if @relations[dep_type].empty?
-        meta += dep_type_2_str[dep_type] + @relations[dep_type].to_s + "\n"
+        depends = []
+
+        # add maintainer-defined dependencies
+        depends << @relations[dep_type].to_s unless @relations[dep_type].empty?
+
+        # add misc and shlib dependencies
+        if dep_type == 'requires'
+          depends << '${shlibs:Depends}' if debian_architecture != 'all'
+          depends << '${misc:Depends}'
+        end
+
+        # put it together
+        unless depends.empty?
+          meta += "#{dep_type_2_str[dep_type]} #{depends.join(', ')}\n"
+        end
       end
     else
       meta += "Depends: #{@name} (= #{@version})\n"
