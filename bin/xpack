@@ -40,9 +40,10 @@ def print_usage()
   puts "                    'deb' - Debian package format                             "
   puts " -o --outdir=<dir>  place resulting binary packages in this directory         "
   puts "                                                                              "
-  puts " -p --prepare-only  run the prepare target defined in the rules file          "
-  puts " -b --build-only    run the build target defined in the rules file            "
-  puts " -i --install-only  run the install target defined in the rules file          "
+  puts " -u --unpack        unpack and patch the sources                              "
+  puts " -p --prepare       run the prepare target defined in the rules file          "
+  puts " -b --build         run the build target defined in the rules file            "
+  puts " -i --install       run the install target defined in the rules file          "
   puts " -r --repackage     run the install target and generate binary packages       "
   puts " -c --clean         run the clean target                                      "
   puts "                                                                              "
@@ -63,18 +64,19 @@ def parse_cmd_line()
   }
 
   opts = GetoptLong.new(
-    [ '--help', '-h',         GetoptLong::NO_ARGUMENT ],
-    [ '--list-deps',          GetoptLong::NO_ARGUMENT ],
-    [ '--ignore-deps',        GetoptLong::NO_ARGUMENT ],
-    [ '--no-debug-pkgs',      GetoptLong::NO_ARGUMENT ],
-    [ '--format', '-f',       GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--outdir', '-o',       GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--prepare-only', '-p', GetoptLong::NO_ARGUMENT ],
-    [ '--build-only', '-b',   GetoptLong::NO_ARGUMENT ],
-    [ '--install-only', '-i', GetoptLong::NO_ARGUMENT ],
-    [ '--repackage', '-r',    GetoptLong::NO_ARGUMENT ],
-    [ '--clean', '-c',        GetoptLong::NO_ARGUMENT ],
-    [ '--debianize',          GetoptLong::NO_ARGUMENT ]
+    [ '--help', '-h',      GetoptLong::NO_ARGUMENT ],
+    [ '--list-deps',       GetoptLong::NO_ARGUMENT ],
+    [ '--ignore-deps',     GetoptLong::NO_ARGUMENT ],
+    [ '--no-debug-pkgs',   GetoptLong::NO_ARGUMENT ],
+    [ '--format', '-f',    GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--outdir', '-o',    GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--unpack', '-u',    GetoptLong::NO_ARGUMENT ],
+    [ '--prepare', '-p',   GetoptLong::NO_ARGUMENT ],
+    [ '--build', '-b',     GetoptLong::NO_ARGUMENT ],
+    [ '--install', '-i',   GetoptLong::NO_ARGUMENT ],
+    [ '--repackage', '-r', GetoptLong::NO_ARGUMENT ],
+    [ '--clean', '-c',     GetoptLong::NO_ARGUMENT ],
+    [ '--debianize',       GetoptLong::NO_ARGUMENT ]
   )
 
   opts.quiet = true
@@ -102,11 +104,13 @@ def parse_cmd_line()
             raise GetoptLong::Error, "directory '#{arg}' is not writable"
           end
           config[:outdir] = arg
-        when '--prepare-only'
+        when '--unpack'
+          config[:action] = :unpack
+        when '--prepare'
           config[:action] = :prepare
-        when '--build-only'
+        when '--build'
           config[:action] = :build
-        when '--install-only'
+        when '--install'
           config[:action] = :install
         when '--repackage'
           config[:action] = :repackage

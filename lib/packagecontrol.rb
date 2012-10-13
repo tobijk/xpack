@@ -113,14 +113,17 @@ class PackageControl
     puts @src_pkg.build_dependencies.to_s
   end
 
+  def unpack()
+    directory = @defines["XPACK_SOURCE_DIR"]
+    File.exist?(directory) or Dir.mkdir directory
+
+    @src_pkg.unpack directory
+    @src_pkg.patch  directory
+  end
+
   def prepare()
-    ['SOURCE', 'BUILD'].each do |s|
-      directory = @defines["XPACK_#{s}_DIR"]
-      File.exist?(directory) or Dir.mkdir directory
-    end
-    source_dir = @defines['XPACK_SOURCE_DIR']
-    @src_pkg.unpack source_dir
-    @src_pkg.patch source_dir
+    directory = @defines["XPACK_BUILD_DIR"]
+    File.exist?(directory) or Dir.mkdir directory
     @src_pkg.prepare @defines
   end
 
@@ -164,6 +167,7 @@ class PackageControl
   end
 
   def default()
+    unpack
     prepare
     build
     install
