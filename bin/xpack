@@ -47,6 +47,8 @@ def print_usage()
   puts " -r --repackage     run the install target and generate binary packages       "
   puts " -c --clean         run the clean target                                      "
   puts "                                                                              "
+  puts " --source-dir=<dir> overrides the package source dir set by the maintainer    "
+  puts "                                                                              "
   puts " --debianize        create 'debian' folder allowing package to be assembled   "
   puts "                    with dpkg-buildpackage on a Debian-based system           "
   puts "                                                                              "
@@ -76,6 +78,7 @@ def parse_cmd_line()
     [ '--install', '-i',   GetoptLong::NO_ARGUMENT ],
     [ '--repackage', '-r', GetoptLong::NO_ARGUMENT ],
     [ '--clean', '-c',     GetoptLong::NO_ARGUMENT ],
+    [ '--source-dir',      GetoptLong::REQUIRED_ARGUMENT ],
     [ '--debianize',       GetoptLong::NO_ARGUMENT ]
   )
 
@@ -116,6 +119,8 @@ def parse_cmd_line()
           config[:action] = :repackage
         when '--clean'
           config[:action] = :clean
+        when '--source-dir'
+          config[:sourcedir] = arg
         when '--debianize'
           config[:action] = :debianize
       end

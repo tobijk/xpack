@@ -66,6 +66,9 @@ class PackageControl
       @defines[node['name']] = node['value']
     end
 
+    # source override
+    @defines['XPACK_SOURCE_DIR'] = parms[:sourcedir] unless parms[:sourcedir].nil?
+
     # if build dir is not set, then build dir is src dir
     @defines['XPACK_BUILD_DIR'] =
       @defines['XPACK_SOURCE_DIR'] unless @defines.has_key? 'XPACK_BUILD_DIR'
