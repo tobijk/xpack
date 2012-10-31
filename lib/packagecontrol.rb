@@ -23,7 +23,8 @@ class PackageControl
       :outdir => nil,
       :ignore_deps => false,
       :format => :deb,
-      :debug_pkgs => true
+      :debug_pkgs => true,
+      :extra_prefix => ''
     }.merge(parms)
 
     xml_doc = Specfile.load(xml_spec_file_name)
@@ -55,8 +56,9 @@ class PackageControl
     xml_doc.at_xpath('/control/changelog')['source'] = source_name
 
     @defines = {
-      'XPACK_SOURCE_DIR'  => 'pack/tmp-source',
-      'XPACK_INSTALL_DIR' => 'pack/tmp-install'
+      'XPACK_SOURCE_DIR'   => 'pack/tmp-source',
+      'XPACK_INSTALL_DIR'  => 'pack/tmp-install',
+      'XPACK_EXTRA_PREFIX' => @parms[:extra_prefix]
     }
 
     @defines['XPACK_BASE_DIR'] = File.expand_path(
@@ -92,6 +94,7 @@ class PackageControl
           DebianPackage.new(node, :debug_pkgs => @parms[:debug_pkgs])
       end
       pkg.base_dir = @defines['XPACK_INSTALL_DIR']
+      pkg.extra_prefix = @parms[:extra_prefix]
       pkg.output_dir = @parms[:outdir] ? File.expand_path(@parms[:outdir]) : nil
       pkg
     end

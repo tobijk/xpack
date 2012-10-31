@@ -23,35 +23,37 @@ XPACK_ERR_INTERRUPT  = 2
 XPACK_ERR_RUNTIME    = 3
 
 def print_usage()
-  puts "XPack Package Generator, version #{XPACK_VERSION}                             "
-  puts "Copyright (C) 2010-2012, Tobias Koch <tobias.koch@gmail.com>                  "
-  puts "                                                                              "
-  puts "Usage: xpack [OPTIONS] <specfile>                                             "
-  puts "                                                                              "
-  puts "Options:                                                                      "
-  puts "                                                                              "
-  puts " -h --help          print this help message                                   "
-  puts "                                                                              "
-  puts " --list-deps        list all build dependencies                               "
-  puts " --ignore-deps      ignore missing build dependencies                         "
-  puts " --no-debug-pkgs    don't generate debug packages                             "
-  puts "                                                                              "
-  puts " -f --format=<fmt>  package format to build, currently supported formats are: "
-  puts "                    'deb' - Debian package format                             "
-  puts " -o --outdir=<dir>  place resulting binary packages in this directory         "
-  puts "                                                                              "
-  puts " -u --unpack        unpack and patch the sources                              "
-  puts " -p --prepare       run the prepare target defined in the rules file          "
-  puts " -b --build         run the build target defined in the rules file            "
-  puts " -i --install       run the install target defined in the rules file          "
-  puts " -r --repackage     run the install target and generate binary packages       "
-  puts " -c --clean         run the clean target                                      "
-  puts "                                                                              "
-  puts " --source-dir=<dir> overrides the package source dir set by the maintainer    "
-  puts "                                                                              "
-  puts " --debianize        create 'debian' folder allowing package to be assembled   "
-  puts "                    with dpkg-buildpackage on a Debian-based system           "
-  puts "                                                                              "
+  puts "XPack Package Generator, version #{XPACK_VERSION}                               "
+  puts "Copyright (C) 2010-2012, Tobias Koch <tobias.koch@gmail.com>                    "
+  puts "                                                                                "
+  puts "Usage: xpack [OPTIONS] <specfile>                                               "
+  puts "                                                                                "
+  puts "Options:                                                                        "
+  puts "                                                                                "
+  puts " -h --help            print this help message                                   "
+  puts "                                                                                "
+  puts " --list-deps          list all build dependencies                               "
+  puts " --ignore-deps        ignore missing build dependencies                         "
+  puts " --no-debug-pkgs      don't generate debug packages                             "
+  puts "                                                                                "
+  puts " -f --format=<fmt>    package format to build, currently supported formats are: "
+  puts "                      'deb' - Debian package format                             "
+  puts " -o --outdir=<dir>    place resulting binary packages in this directory         "
+  puts "                                                                                "
+  puts " -u --unpack          unpack and patch the sources                              "
+  puts " -p --prepare         run the prepare target defined in the rules file          "
+  puts " -b --build           run the build target defined in the rules file            "
+  puts " -i --install         run the install target defined in the rules file          "
+  puts " -r --repackage       run the install target and generate binary packages       "
+  puts " -c --clean           run the clean target                                      "
+  puts "                                                                                "
+  puts " --source-dir=<dir>   overrides the package source dir set by the maintainer    "
+  puts " --extra-prefix=<dir> extra prefix to apply when packaging, this prefix is also "
+  puts "                      exported to the package scripts as XPACK_EXTRA_PREFIX     "
+  puts "                                                                                "
+  puts " --debianize          create 'debian' folder allowing package to be assembled   "
+  puts "                      with dpkg-buildpackage on a Debian-based system           "
+  puts "                                                                                "
 end
 
 def parse_cmd_line()
@@ -62,7 +64,8 @@ def parse_cmd_line()
     :outdir => nil,
     :format => :deb,
     :ignore_deps => false,
-    :debug_pkgs => true
+    :debug_pkgs => true,
+    :extra_prefix => ''
   }
 
   opts = GetoptLong.new(
@@ -79,6 +82,7 @@ def parse_cmd_line()
     [ '--repackage', '-r', GetoptLong::NO_ARGUMENT ],
     [ '--clean', '-c',     GetoptLong::NO_ARGUMENT ],
     [ '--source-dir',      GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--extra-prefix',    GetoptLong::REQUIRED_ARGUMENT ],
     [ '--debianize',       GetoptLong::NO_ARGUMENT ]
   )
 
@@ -121,6 +125,8 @@ def parse_cmd_line()
           config[:action] = :clean
         when '--source-dir'
           config[:sourcedir] = arg
+        when '--extra-prefix'
+          config[:extra_prefix] = arg
         when '--debianize'
           config[:action] = :debianize
       end

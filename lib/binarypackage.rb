@@ -102,6 +102,7 @@ class BinaryPackage < BasePackage
     end
 
     self.base_dir = 'pack/tmp-install'
+    self.extra_prefix = ''
     @output_dir = '..'
   end
 
@@ -123,6 +124,10 @@ class BinaryPackage < BasePackage
       if @content_subdir
   end
 
+  def extra_prefix=(extra_prefix)
+    @extra_prefix = extra_prefix
+  end
+
   def output_dir=(output_dir)
     @output_dir = File.expand_path(output_dir) if output_dir
   end
@@ -142,6 +147,14 @@ class BinaryPackage < BasePackage
 
     # clone content specification
     @contents = @content_spec.clone
+    unless @extra_prefix.empty?
+      extra_prefixed_contents = {}
+      @contents.each_pair do |src, attr|
+        extra_prefixed_contents[
+          File.expand_path(@extra_prefix + '/' + src)] = attr
+      end
+      @contents = extra_prefixed_contents
+    end
 
     # generate complete listing
     @contents.each_pair do |src, attr|
