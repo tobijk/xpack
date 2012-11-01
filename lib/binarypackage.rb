@@ -126,6 +126,7 @@ class BinaryPackage < BasePackage
 
   def extra_prefix=(extra_prefix)
     @extra_prefix = extra_prefix
+    @make_debug_pkgs = false unless extra_prefix.empty?
   end
 
   def output_dir=(output_dir)
