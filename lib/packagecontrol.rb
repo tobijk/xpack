@@ -58,8 +58,12 @@ class PackageControl
     @defines = {
       'XPACK_SOURCE_DIR'   => 'pack/tmp-source',
       'XPACK_INSTALL_DIR'  => 'pack/tmp-install',
-      'XPACK_EXTRA_PREFIX' => @parms[:extra_prefix]
+      'XPACK_EXTRA_PREFIX' => @parms[:extra_prefix] || ''
     }
+
+    @defines['XPACK_BUILD_TYPE']  = @parms[:build_type]  || Platform.config_guess
+    @defines['XPACK_HOST_TYPE']   = @parms[:host_type]   || @defines['XPACK_BUILD_TYPE']
+    @defines['XPACK_TARGET_TYPE'] = @parms[:target_type] || @defines['XPACK_HOST_TYPE']
 
     @defines['XPACK_BASE_DIR'] = File.expand_path(
       File.dirname(File.expand_path(xml_spec_file_name)) + '/..')
