@@ -11,6 +11,8 @@ require 'packagemanager'
 
 class Platform
 
+  CONFIG_GUESS = '/usr/share/misc/config.guess'
+
   class << self
 
     def build_flags
@@ -60,23 +62,11 @@ class Platform
     def config_guess
       # ask native gcc
       if gcc = find_executable('gcc')
-        system_type = nil
-
-        Popen.popen2("#{gcc} -v", {}) do |stdin, stdeo|
-          stdin.close
-          stdeo.each_line do |line|
-            if line =~ /^Target:\s+(\S+)/
-              system_type = $1
-            end
-          end
-        end
-
-        return system_type if system_type
+        return `#{gcc} -dumpmachine`.strip
       end
 
       # try to run 'config.guess'
-      return `/usr/share/misc/config.guess` if \
-        File.exist? '/usr/share/misc/config.guess'
+      return `#{CONFIG_GUESS}`.strip if File.exist? CONFIG_GUESS
 
       # this is unlikely to happen
       return nil
