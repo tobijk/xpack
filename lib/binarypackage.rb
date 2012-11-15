@@ -157,6 +157,8 @@ class BinaryPackage < BasePackage
 
     # clone content specification
     @contents = @content_spec.clone
+
+    # prepend extra prefix if set
     unless @extra_prefix.empty?
       extra_prefixed_contents = {}
       @contents.each_pair do |src, attr|
