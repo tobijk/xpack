@@ -100,6 +100,7 @@ class PackageControl
       pkg.base_dir = @defines['XPACK_INSTALL_DIR']
       pkg.extra_prefix = @parms[:extra_prefix]
       pkg.output_dir = @parms[:outdir] ? File.expand_path(@parms[:outdir]) : nil
+      pkg.host_arch = @defines['XPACK_HOST_TYPE']
       pkg
     end
 

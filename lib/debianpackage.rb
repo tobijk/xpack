@@ -274,14 +274,14 @@ class DebianPackage < BinaryPackage
   end
 
   def debian_architecture
+    errmsg = "could not determine machine architecture."
+
     return 'all' if @is_arch_indep
-    errmsg = "failed to detect machine architecture."
-    march = `uname -m`.chomp
-    if $? != 0 then raise StandardError errmsg end
-    case march
+
+    case @host_arch
       when /i.86/
         'i386'
-      when /x86-64/
+      when /x86[-_]64/
         'amd64'
       when /arm/
         'arm'

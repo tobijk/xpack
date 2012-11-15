@@ -13,6 +13,7 @@ require 'basepackage'
 
 class BinaryPackage < BasePackage
   attr_reader :contents, :name, :version, :base_dir, :output_dir, :maintainer_scripts, :content_spec, :content_subdir
+  attr_accessor :host_arch
 
   class EntryAttributes
     attr_accessor :src, :type, :mode, :owner, :group, :conffile
@@ -104,6 +105,9 @@ class BinaryPackage < BasePackage
     self.base_dir = 'pack/tmp-install'
     self.extra_prefix = ''
     @output_dir = '..'
+
+    # set this so package class can guess the arch type
+    @host_arch = Platform.config_guess
   end
 
   def epoch_and_upstream_version
@@ -126,7 +130,12 @@ class BinaryPackage < BasePackage
 
   def extra_prefix=(extra_prefix)
     @extra_prefix = extra_prefix
-    @make_debug_pkgs = false unless extra_prefix.empty?
+
+    if extra_prefix.empty?
+      @make_debug_pkgs = true
+    else
+      @make_debug_pkgs = false
+    end
   end
 
   def output_dir=(output_dir)
