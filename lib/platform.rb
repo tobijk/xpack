@@ -51,7 +51,11 @@ class Platform
     end
 
     def find_executable(executable_name)
-      ENV['PATH'].split(':').each do |path|
+      search_path = (
+        ENV['PATH'].split(':') + ['/bin', '/sbin', '/usr/bin', '/usr/sbin']
+      ).uniq.join(':')
+
+      search_path.split(':').each do |path|
         location = "#{path}/#{executable_name}"
         return location if File.exist? location
       end
