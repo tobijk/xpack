@@ -17,15 +17,6 @@ class ShlibCache
   class SharedObject
     attr_writer :arch_word_size, :package_name, :package_version
 
-    def self.system_package_manager
-      [ 'dpkg', 'opkg', 'rpm' ].each do |packager_name|
-        [ '/usr/bin/', '/usr/sbin', '/bin', '/sbin' ].each do |path|
-          if File.exist?(path + '/' + packager_name) then return packager_name end
-        end
-      end
-      return 'unknown'
-    end
-
     def initialize(lib_path)
       @lib_path = lib_path
       @package_name = nil
@@ -69,13 +60,18 @@ class ShlibCache
   def initialize
     @map = Hash.new { |h, k| h[k] = Array.new }
 
-    Popen.popen2('/sbin/ldconfig -p') do |stdin, stdeo|
-      re = /^\s*(\S+) \(.*\) => (\S+)/
+    ldconfig_exe = Platform.find_executable("ldconfig") or
+      raise StandardError, "could not find 'ldconfig' on your system"
+
+    Popen.popen2("#{ldconfig_exe} -p") do |stdin, stdeo|
+      re = /^\s*(\S+) \((.*)\) => (\S+)/
       stdin.close
       stdeo.each_line do |line|
-        match = re.match(line) or next
+        next unless match = re.match(line)
+        next unless match[2] !~ /hwcap/
+
         lib_name = match[1]
-        lib_path = match[2]
+        lib_path = match[3]
         @map[lib_name] << SharedObject.new(lib_path)
       end
     end
