@@ -253,9 +253,15 @@ class PackageControl
       # write xpack environment variables
       xpack_base_dir = @defines['XPACK_BASE_DIR']
       fp.write "export XPACK_BASE_DIR := $(CURDIR)\n"
-      ['SOURCE', 'BUILD', 'INSTALL'].each do |s|
-        directory = @defines["XPACK_#{s}_DIR"].gsub(/^#{xpack_base_dir}\/*/, '')
-        fp.write "export XPACK_#{s}_DIR := $(XPACK_BASE_DIR)/#{directory}\n"
+      @defines.each_pair do |k, v|
+        if k =~ /XPACK_(?:SOURCE|BUILD|INSTALL)_DIR/
+          directory = v.gsub(/^#{xpack_base_dir}\/*/, '')
+          fp.write "export #{k} := $(XPACK_BASE_DIR)/#{directory}\n"
+        elsif k =~ /XPACK_(?:(?:HOST|BUILD|TARGET)_TYPE|BASE_DIR)/
+          next
+        else
+          fp.write "export #{k} := #{v}\n"
+        end
       end
       fp.write "\n"
 
