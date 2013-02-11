@@ -126,11 +126,10 @@ class DebianPackage < BinaryPackage
     ar = Archive.write_open_filename(outfile, Archive::COMPRESSION_GZIP,
       Archive::FORMAT_TAR_USTAR) do |ar|
 
-      sha256sums = sha256sums(pkg_contents)
+      #sha256sums = sha256sums(pkg_contents)
 
       ctrl_contents = [
-        [ 'control', meta_data, 0644 ],
-        [ 'sha256sums', sha256sums, 0644 ]
+        [ 'control', meta_data, 0644 ]
       ]
       @maintainer_scripts.each_pair { |k, v| ctrl_contents << [ k, v, 0754 ] }
 
