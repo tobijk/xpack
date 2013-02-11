@@ -9,7 +9,7 @@
 
 require 'tmpdir'
 require 'binarypackage'
-require 'digest/md5'
+require 'openssl'
 require 'libarchive_rs'
 
 class DebianPackage < BinaryPackage
@@ -105,9 +105,11 @@ class DebianPackage < BinaryPackage
     ar = Archive.write_open_filename(outfile, Archive::COMPRESSION_GZIP,
       Archive::FORMAT_TAR_USTAR) do |ar|
 
+      sha256sums = sha256sums(pkg_contents)
+
       ctrl_contents = [
         [ 'control', meta_data, 0644 ],
-        [ 'md5sums', md5sums(pkg_contents), 0644 ],
+        [ 'sha256sums', sha256sums, 0644 ]
       ]
       @maintainer_scripts.each_pair { |k, v| ctrl_contents << [ k, v, 0754 ] }
 
@@ -232,27 +234,27 @@ class DebianPackage < BinaryPackage
     return meta
   end
 
-  def md5sums(contents)
-    result = ""
+  def sha256sums(contents)
+    sha256sums = ""
 
     contents.each do |src, attr|
       real_path = @base_dir + '/' + src
       next unless File.file? real_path
       begin
-        md5 = Digest::MD5.new
+        sha256 = OpenSSL::Digest::SHA256.new
         File.open(real_path, 'r') do |fp|
           while buf = fp.read(1024)
-            md5.update(buf)
+            sha256.update(buf)
           end
         end
-        result << "#{md5.hexdigest}  #{src.sub(/^\//, '')}\n"
+        sha256sums << "#{sha256.hexdigest}  #{src.sub(/^\//, '')}\n"
       rescue Exception => e
-        msg = "Error while generating md5sum for '#{src}': #{e.message}"
+        msg = "Error while generating hash sums for '#{src}': #{e.message}"
         raise RuntimeError msg
       end
     end
 
-    return result
+    return sha256sums
   end
 
   def conffiles(contents)
