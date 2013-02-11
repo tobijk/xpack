@@ -72,28 +72,49 @@ class DebianPackage < BinaryPackage
   end
 
   def assemble_package(meta_data, contents, outfile)
-    Dir.mktmpdir do |tmpdir|
+    sha256 = OpenSSL::Digest::SHA256.new
 
+    Dir.mktmpdir do |tmpdir|
       write_data_tar_gz(contents, tmpdir + '/data.tar.gz')
       write_control_tar_gz(meta_data, contents, tmpdir + '/control.tar.gz')
       File.open(tmpdir + '/debian-binary', 'w+') { |f| f.write(debian_binary) }
+
+      entry_set_props = Proc.new { |ar_entry|
+        ar_entry.mode = Archive::ENTRY_FILE | 0644
+        ar_entry.uid = 0
+        ar_entry.gid = 0
+        ar_entry.uname = 'root'
+        ar_entry.gname = 'root'
+      }
 
       ar = Archive.write_open_filename(outfile,
         Archive::COMPRESSION_NONE, Archive::FORMAT_AR_SVR4) do |ar|
 
         [ 'debian-binary', 'control.tar.gz',
             'data.tar.gz' ].each do |entry_name|
+
           ar.new_entry do |ar_entry|
             real_path = tmpdir + '/' + entry_name
             ar_entry.copy_stat(real_path)
-            ar_entry.mode = Archive::ENTRY_FILE | 0644
             ar_entry.pathname = entry_name
-            ar_entry.uid = 0
-            ar_entry.gid = 0
-            ar_entry.uname = 'root'
-            ar_entry.gname = 'root'
+            entry_set_props.call(ar_entry)
             ar.write_header(ar_entry)
-            File.open(real_path) { |fp| ar.write_data { fp.read(4096) } }
+            File.open(real_path) do |fp|
+              while data = fp.read(4096) do
+                sha256.update(data)
+                ar.write_data(data)
+              end
+            end
+          end
+
+          sha256sum = sha256.hexdigest() + "\n"
+
+          ar.new_entry do |ar_entry|
+            ar_entry.pathname = "_sha256sum"
+            ar_entry.size = sha256sum.bytesize
+            entry_set_props.call(ar_entry)
+            ar.write_header(ar_entry)
+            ar.write_data(sha256sum)
           end
         end
       end
