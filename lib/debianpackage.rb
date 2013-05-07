@@ -106,19 +106,18 @@ class DebianPackage < BinaryPackage
               end
             end
           end
+        end
 
-          sha256sum = sha256.hexdigest() + "\n"
+        sha256sum = sha256.hexdigest() + "\n"
 
-          ar.new_entry do |ar_entry|
-            ar_entry.pathname = "_sha256sum"
-            ar_entry.size = sha256sum.bytesize
-            entry_set_props.call(ar_entry)
-            ar.write_header(ar_entry)
-            ar.write_data(sha256sum)
-          end
+        ar.new_entry do |ar_entry|
+          ar_entry.pathname = "_sha256sum"
+          ar_entry.size = sha256sum.bytesize
+          entry_set_props.call(ar_entry)
+          ar.write_header(ar_entry)
+          ar.write_data(sha256sum)
         end
       end
-
     end
   end
 
