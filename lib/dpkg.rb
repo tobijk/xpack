@@ -16,7 +16,7 @@ class Dpkg
   def initialize
     @packages = {}
 
-    status_list = File.open(Dpkg::STATUS_FILE, 'r') do |f|
+    status_list = File.open(Dpkg::STATUS_FILE, 'r:utf-8') do |f|
       f.read
     end
 

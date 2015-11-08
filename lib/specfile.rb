@@ -23,7 +23,7 @@ module Specfile
     def load(xml_spec_file_name)
       xml_doc = nil
 
-      File.open(xml_spec_file_name, 'r') do |fp|
+      File.open(xml_spec_file_name, 'r:utf-8') do |fp|
         begin
           xml_doc = Nokogiri::XML(fp) do |config|
             config.strict.noent.nocdata.dtdload.xinclude
@@ -41,7 +41,8 @@ module Specfile
     end
 
     def validate_structure(xml_doc)
-      schema = Nokogiri::XML::RelaxNG.new(File.open(RELAXNG_SCHEMA_FILE))
+      schema = Nokogiri::XML::RelaxNG.new(
+        File.open(RELAXNG_SCHEMA_FILE, 'r:utf-8'))
 
       errors = schema.validate(xml_doc)
 

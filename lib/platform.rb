@@ -40,7 +40,7 @@ class Platform
       unless File.exist? '/proc/cpuinfo'
         num_cpus = 1
       else
-        File.open('/proc/cpuinfo', 'r') do |f|
+        File.open('/proc/cpuinfo', 'r:utf-8') do |f|
           f.each_line do |line|
             num_cpus += 1 if line =~ /processor\s*:\s*\d+/
           end

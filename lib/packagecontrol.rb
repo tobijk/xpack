@@ -190,7 +190,7 @@ class PackageControl
     Dir.mkdir debian_folder unless File.exists? debian_folder
 
     # write debian/control
-    File.open(debian_folder + '/control', 'w+', 0644) do |fp|
+    File.open(debian_folder + '/control', 'w+:utf-8', 0644) do |fp|
       fp.write(@src_pkg.meta_data)
       fp.write("\n")
 
@@ -203,13 +203,17 @@ class PackageControl
     # write maintainer scripts and install files
     @bin_pkgs.each do |pkg|
       pkg.maintainer_scripts.each do |script_name, content|
-        File.open(debian_folder + "/#{pkg.name}.#{script_name}", 'w+', 0755) do |fp|
+        script_name = debian_folder + "/#{pkg.name}.#{script_name}"
+
+        File.open(script_name, 'w+:utf-8', 0755) do |fp|
           fp.write content.rstrip + "\n"
         end
       end
 
-      fp_dirs  = File.open(debian_folder + "/#{pkg.name}.dirs", 'w+', 0644)
-      fp_files = File.open(debian_folder + "/#{pkg.name}.install", 'w+', 0644)
+      fp_dirs  = File.open(debian_folder + \
+        "/#{pkg.name}.dirs", 'w+:utf-8', 0644)
+      fp_files = File.open(debian_folder + \
+        "/#{pkg.name}.install", 'w+:utf-8', 0644)
 
       pkg.content_spec.each do |entry, attr|
         entry = '.' if entry.empty?
@@ -225,12 +229,12 @@ class PackageControl
     end
 
     # write debian/changelog
-    File.open(debian_folder + '/changelog', 'w+', 0644) do |fp|
+    File.open(debian_folder + '/changelog', 'w+:utf-8', 0644) do |fp|
       fp.write @changelog.format_for_debian
     end
 
     # write debian/compat
-    File.open(debian_folder + '/compat', 'w+', 0644) do |fp|
+    File.open(debian_folder + '/compat', 'w+:utf-8', 0644) do |fp|
       fp.write "7\n"
     end
 
@@ -239,7 +243,7 @@ class PackageControl
     Dir.mkdir rules_folder unless File.exists? rules_folder
 
     ['prepare', 'build', 'install', 'clean'].each do |action|
-      File.open(rules_folder + "/#{action}.sh", 'w+', 0755) do |fp|
+      File.open(rules_folder + "/#{action}.sh", 'w+:utf-8', 0755) do |fp|
         fp.write("#!/bin/sh -ex\n\n")
         fp.write(@src_pkg.rules[action].to_s.strip)
         fp.write("\n\n")
@@ -247,7 +251,7 @@ class PackageControl
     end
 
     # write debian/rules
-    File.open(debian_folder + '/rules', 'w+', 0755) do |fp|
+    File.open(debian_folder + '/rules', 'w+:utf-8', 0755) do |fp|
       fp.write "#!/usr/bin/make -f\n\n"
 
       # write xpack environment variables

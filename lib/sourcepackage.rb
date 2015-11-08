@@ -104,7 +104,7 @@ class SourcePackage < BasePackage
             dirname = File.dirname(full_path)
             FileUtils.makedirs(dirname) if not File.exist?(dirname)
             # extract file contents
-            File.open(full_path, 'w+') do |fp|
+            File.open(full_path, 'wb+') do |fp|
               archive.read_data(1024) {|data| fp.write(data)}
             end
           else

@@ -77,7 +77,7 @@ class DebianPackage < BinaryPackage
     Dir.mktmpdir do |tmpdir|
       write_data_tar_gz(contents, tmpdir + '/data.tar.gz')
       write_control_tar_gz(meta_data, contents, tmpdir + '/control.tar.gz')
-      File.open(tmpdir + '/debian-binary', 'w+') { |f| f.write(debian_binary) }
+      File.open(tmpdir + '/debian-binary', 'w+:utf-8') { |f| f.write(debian_binary) }
 
       entry_set_props = Proc.new { |ar_entry|
         ar_entry.mode = Archive::ENTRY_FILE | 0644
@@ -99,7 +99,7 @@ class DebianPackage < BinaryPackage
             ar_entry.pathname = entry_name
             entry_set_props.call(ar_entry)
             ar.write_header(ar_entry)
-            File.open(real_path) do |fp|
+            File.open(real_path, "rb") do |fp|
               while data = fp.read(4096) do
                 sha256.update(data)
                 ar.write_data(data)
@@ -183,7 +183,9 @@ class DebianPackage < BinaryPackage
             ar.write_header(ar_entry)
 
             if ar_entry.file?
-              File.open(real_path) { |fp| ar.write_data { fp.read(1024) } }
+              File.open(real_path, "rb") { |fp|
+                ar.write_data { fp.read(1024) }
+              }
             end
           end
         rescue Exception => e
@@ -261,7 +263,7 @@ class DebianPackage < BinaryPackage
       next unless File.file? real_path
       begin
         sha256 = OpenSSL::Digest::SHA256.new
-        File.open(real_path, 'r') do |fp|
+        File.open(real_path, 'rb') do |fp|
           while buf = fp.read(1024)
             sha256.update(buf)
           end
