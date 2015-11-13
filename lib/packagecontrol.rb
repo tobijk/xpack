@@ -56,8 +56,8 @@ class PackageControl
     xml_doc.at_xpath('/control/changelog')['source'] = source_name
 
     @defines = {
-      'XPACK_SOURCE_DIR'   => 'pack/tmp-source',
-      'XPACK_INSTALL_DIR'  => 'pack/tmp-install',
+      'XPACK_SOURCE_DIR'   => 'sources',
+      'XPACK_INSTALL_DIR'  => 'install',
       'XPACK_EXTRA_PREFIX' => @parms[:extra_prefix] || ''
     }
 
@@ -65,8 +65,7 @@ class PackageControl
     @defines['XPACK_HOST_TYPE']   = @parms[:host_type]   || @defines['XPACK_BUILD_TYPE']
     @defines['XPACK_TARGET_TYPE'] = @parms[:target_type] || @defines['XPACK_HOST_TYPE']
 
-    @defines['XPACK_BASE_DIR'] = File.expand_path(
-      File.dirname(File.expand_path(xml_spec_file_name)) + '/..')
+    @defines['XPACK_BASE_DIR'] = Dir.pwd()
 
     xml_doc.xpath('/control/defines/def').each do |node|
       @defines[node['name']] = node['value']
