@@ -83,6 +83,9 @@
                                 <optional>
                                     <attribute name="subdir"/>
                                 </optional>
+                                <optional>
+                                    <attribute name="sha256sum"/>
+                                </optional>
                             </element>
                         </zeroOrMore>
                     </element>
@@ -104,6 +107,9 @@
                                 <zeroOrMore>
                                     <element name="file">
                                         <attribute name="src"/>
+                                        <optional>
+                                            <attribute name="sha256sum"/>
+                                        </optional>
                                     </element>
                                 </zeroOrMore>
                             </element>
