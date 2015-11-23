@@ -34,6 +34,11 @@ module Specfile
         end
       end
 
+      # we don't care about "xml:base" attributes and they break validation
+      xml_doc.xpath(".//@xml:base").each do |xml_base_attr|
+        xml_base_attr.remove
+      end
+
       validate_structure(xml_doc)
       validate_format(xml_doc)
 
