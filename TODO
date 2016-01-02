@@ -1,3 +1,4 @@
+* validate checksums on unpack and patch
 * check package 'section'
 * packagemanager interface supports opkg
 * filter elements by arch
